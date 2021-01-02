@@ -105,7 +105,7 @@ def main():
     # Create back edges
     back_egdes.sort()
     for edge in back_egdes:
-        [parent, child] = edge
+        [parent, _] = edge
         color = 'r'
         if len(getChildrenNodes(T, parent)) < 2:
             color = 'b'
