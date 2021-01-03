@@ -58,19 +58,33 @@ def meetingSharedBy(agents, meetingId):
     return sharedBy
 
 # return all children including pseudo-children
-def getChildren(tree, parent):
-    neighbors = tree.adj[parent]
+def getChildren(tree, node):
+    neighbors = tree.adj[node]
     true_children = []
     pseudo_children = []
     for e in neighbors:
-        edge_color = tree.adj[parent][e]['color']
-        if e > parent:
+        edge_color = tree.adj[node][e]['color']
+        if e > node:
             if edge_color == 'b':
                 true_children.append(e)
             else:
                 pseudo_children.append(e)
 
     return true_children, pseudo_children
+
+def getParents(tree, node):
+    neighbors = tree.adj[node]
+    true_parent = []
+    pseudo_parent = []
+    for e in neighbors:
+        edge_color = tree.adj[node][e]['color']
+        if e < node:
+            if edge_color == 'b':
+                true_parent.append(e)
+            else:
+                pseudo_parent.append(e)
+
+    return true_parent, pseudo_parent
 
 
 def main():
@@ -133,9 +147,11 @@ def main():
     colors = [T[u][v]['color'] for u,v in edges]
 
     nx.draw(T, layout, edge_color=colors, with_labels=True)
-    [true, pseudo] = getChildren(T,2)
-    print('true children: ',true)
-    print('pseudo children: ', pseudo)
+    [trueNodes, pseudoNodes] = getChildren(T,2)
+    print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
+    [trueParent, pseudoParent] = getParents(T,12)
+    print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
+
     plt.show()
 
 if __name__ == '__main__':
