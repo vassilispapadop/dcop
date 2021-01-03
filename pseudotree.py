@@ -7,7 +7,11 @@ from networkx.drawing.nx_pydot import graphviz_layout
 TIME_SLOTS = 8
 
 def readLine(input):
-    [a, b, c] = input.readline().strip().split(';')
+    try:
+        [a, b, c] = input.readline().strip().split(';')
+    except ValueError as e:
+        return []
+
     return int(a), int(b), int(c)
 
 def printAgents(agents):
@@ -17,11 +21,15 @@ def printAgents(agents):
 def readPreferences(input, agents, nrAgents):
     for a in range(nrAgents):
         for slot in range(TIME_SLOTS):
-            [id,_,pref] = readLine(input)
             try:
+                [id,_,pref] = readLine(input)
                 agents[id]['preference'].append(pref)
             except IndexError as e:
                 print('Agent ID: ', id,' not found')
+                break
+            except ValueError as ve:
+                print ('Value Error, AgentId:', id, ' not found')
+                break;
 
     return agents
 
@@ -182,7 +190,7 @@ def main():
 
     [trueNodes, pseudoNodes] = getChildren(T,2)
     print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
-    [trueParent, pseudoParent] = getParents(T,12)
+    [trueParent, pseudoParent] = getParents(T,2)
     print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
     leaves = getLeafNodes(T)
