@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import pydot
 from networkx.drawing.nx_pydot import graphviz_layout
 
+TIME_SLOTS = 8
+
 def readLine(input):
     [a, b, c] = input.readline().strip().split(';')
     return int(a), int(b), int(c)
@@ -11,6 +13,14 @@ def readLine(input):
 def printAgents(agents):
     for item in agents:
         print(item)
+
+def readPreferences(input, agents, nrAgents):
+    for a in range(nrAgents):
+        for slot in range(TIME_SLOTS):
+            [id,_,pref] = readLine(input)
+            agents[id]['preference'].append(pref)
+
+    return agents
 
 def readMeetings(input, vars):
     agents = []
@@ -20,7 +30,8 @@ def readMeetings(input, vars):
                     'id': agentId,  
                         'meetings': {
                             meetingId: meetingUtil
-                    }
+                        },
+                        'preference': []
                 }
         index = search(agentId, agents)
         if index > -1:
@@ -30,7 +41,6 @@ def readMeetings(input, vars):
             agents.append(agent)
 
     agents.sort(key=sortBy)
-    printAgents(agents)
     return agents
 
 def sortBy(e):
@@ -113,6 +123,12 @@ def main():
     # Read agents/variables/constraints
     agents = readMeetings(input, nrVars)
 
+    # Read preferences per agent
+    agents = readPreferences(input, agents, nrAgents)
+
+    # Print agents
+    printAgents(agents)
+
     # Create graph
     G = nx.Graph()
     
@@ -122,7 +138,6 @@ def main():
 
     # Add edges and keep track of back-edges
     back_egdes = []
-    #PTC = dict.fromkeys(range(nrAgents), 0)
     for meetingId in range(0, nrMeetings):
         ids = meetingSharedBy(agents, meetingId)
         i = 0
@@ -131,7 +146,6 @@ def main():
             e = (ids[i], ids[next])
             if len(G.adj[ids[i]]) < 2:
                 G.add_edge(*e,  color='b')
-                # PTC[ids[i]] = PTC[ids[i]] + 1
             else:
                back_egdes.append([*e])    
 
@@ -167,7 +181,7 @@ def main():
     print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
     leaves = getLeafNodes(T)
-    compute_utils(T, leaves)
+    #compute_utils(T, leaves)
     plt.show()
 
 if __name__ == '__main__':
