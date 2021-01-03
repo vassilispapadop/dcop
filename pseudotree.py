@@ -1,6 +1,6 @@
 import networkx as nx
+from networkx.classes.coreviews import AdjacencyView
 import matplotlib.pyplot as plt
-import networkx as nx
 import pydot
 from networkx.drawing.nx_pydot import graphviz_layout
 
@@ -57,10 +57,21 @@ def meetingSharedBy(agents, meetingId):
     sharedBy.sort()
     return sharedBy
 
-
-def getChildrenNodes(tree, parent):
+# return all children including pseudo-children
+def getChildren(tree, parent):
     neighbors = tree.adj[parent]
-    return [x for x in neighbors if x > parent]
+    true_children = []
+    pseudo_children = []
+    for e in neighbors:
+        edge_color = tree.adj[parent][e]['color']
+        if e > parent:
+            if edge_color == 'b':
+                true_children.append(e)
+            else:
+                pseudo_children.append(e)
+
+    return true_children, pseudo_children
+
 
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
@@ -107,7 +118,8 @@ def main():
     for edge in back_egdes:
         [parent, _] = edge
         color = 'r'
-        if len(getChildrenNodes(T, parent)) < 2:
+        [true, pseudo] = getChildren(T, parent)
+        if len(true+pseudo) < 2:
             color = 'b'
 
         T.add_edge(*edge, color = color)
@@ -121,7 +133,9 @@ def main():
     colors = [T[u][v]['color'] for u,v in edges]
 
     nx.draw(T, layout, edge_color=colors, with_labels=True)
-    print(getChildrenNodes(T, 2))
+    [true, pseudo] = getChildren(T,2)
+    print('true children: ',true)
+    print('pseudo children: ', pseudo)
     plt.show()
 
 if __name__ == '__main__':
