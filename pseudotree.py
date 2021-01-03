@@ -44,7 +44,8 @@ def search(id, agents):
             return index
         index += 1
     return -1        
-    
+
+# finds all agents that share meeting based on meetingId    
 def meetingSharedBy(agents, meetingId):
     sharedBy = []
     for item in agents:
@@ -58,6 +59,7 @@ def meetingSharedBy(agents, meetingId):
     return sharedBy
 
 # return all children including pseudo-children
+# note, T is sorted meaning higher node_id is lower in tree-depth
 def getChildren(tree, node):
     neighbors = tree.adj[node]
     true_children = []
@@ -86,7 +88,14 @@ def getParents(tree, node):
 
     return true_parent, pseudo_parent
 
+def getLeafNodes(tree):
+    leaves = []
+    for n in tree.nodes():
+        [true_children, pseudo_children] = getChildren(tree,n)
+        if len(true_children + pseudo_children) == 0:
+            leaves.append(n)
 
+    return leaves
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
@@ -147,11 +156,13 @@ def main():
     colors = [T[u][v]['color'] for u,v in edges]
 
     nx.draw(T, layout, edge_color=colors, with_labels=True)
+    
     [trueNodes, pseudoNodes] = getChildren(T,2)
     print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
     [trueParent, pseudoParent] = getParents(T,12)
     print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
+    print(getLeafNodes(T))
     plt.show()
 
 if __name__ == '__main__':
