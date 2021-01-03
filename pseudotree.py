@@ -96,6 +96,10 @@ def getLeafNodes(tree):
             leaves.append(n)
 
     return leaves
+
+# def compute_utils(tree, leaves):
+
+
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
@@ -156,13 +160,14 @@ def main():
     colors = [T[u][v]['color'] for u,v in edges]
 
     nx.draw(T, layout, edge_color=colors, with_labels=True)
-    
+
     [trueNodes, pseudoNodes] = getChildren(T,2)
     print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
     [trueParent, pseudoParent] = getParents(T,12)
     print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
-    print(getLeafNodes(T))
+    leaves = getLeafNodes(T)
+    compute_utils(T, leaves)
     plt.show()
 
 if __name__ == '__main__':
