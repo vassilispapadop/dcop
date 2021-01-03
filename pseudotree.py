@@ -126,7 +126,7 @@ def main():
 
     # Open file 
     # inputFilename = 'dcop_constraint_graph'
-    inputFilename = 'DCOP_Problem_14'
+    inputFilename = 'DCOP_Problem_100'
 
     input = open(inputFilename, 'r') 
 
@@ -165,7 +165,7 @@ def main():
             i += 1
     
     # Convert to spanning tree
-    T = nx.minimum_spanning_tree(G)
+    T = nx.maximum_spanning_tree(G)
 
     # Create back edges
     back_egdes.sort()
@@ -178,7 +178,6 @@ def main():
 
         T.add_edge(*edge, color = color)
 
-    # print('parents: ', PTC)
     print('back-edges: ', back_egdes)
 
     layout = graphviz_layout(T, prog="dot")
@@ -194,6 +193,7 @@ def main():
     print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
     leaves = getLeafNodes(T)
+    print(leaves)
     #compute_utils(T, leaves)
     plt.show()
 

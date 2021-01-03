@@ -273,7 +273,7 @@ def main():
 	#    print("Provide Number!")
 	#    sys.exit()
 
-	N = 14
+	N = 700
 
 	index=create_hierarchy(N)		
 	MM=meetings(index)
