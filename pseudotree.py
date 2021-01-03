@@ -18,7 +18,10 @@ def readPreferences(input, agents, nrAgents):
     for a in range(nrAgents):
         for slot in range(TIME_SLOTS):
             [id,_,pref] = readLine(input)
-            agents[id]['preference'].append(pref)
+            try:
+                agents[id]['preference'].append(pref)
+            except IndexError as e:
+                print('Agent ID: ', id,' not found')
 
     return agents
 
@@ -114,7 +117,9 @@ def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
     # Open file 
-    inputFilename = 'dcop_constraint_graph'
+    # inputFilename = 'dcop_constraint_graph'
+    inputFilename = 'DCOP_Problem_14'
+
     input = open(inputFilename, 'r') 
 
     # Read first line
