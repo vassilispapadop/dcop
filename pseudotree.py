@@ -118,15 +118,18 @@ def getLeafNodes(tree):
 
     return leaves
 
-# def compute_utils(tree, leaves):
+def compute_utils(tree, leaves):
+    # compute utility from each leaf node and pass it to parents
+    for n in leaves:
+        print('Computing utility for node: ', n)
 
 
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
     # Open file 
-    # inputFilename = 'dcop_constraint_graph'
-    inputFilename = 'DCOP_Problem_100'
+    inputFilename = 'dcop_constraint_graph'
+    # inputFilename = 'DCOP_Problem_100'
 
     input = open(inputFilename, 'r') 
 
@@ -194,7 +197,7 @@ def main():
 
     leaves = getLeafNodes(T)
     print(leaves)
-    #compute_utils(T, leaves)
+    compute_utils(T, leaves)
     plt.show()
 
 if __name__ == '__main__':
