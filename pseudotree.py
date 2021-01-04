@@ -51,11 +51,13 @@ def readMeetings(input, vars):
         else:
             agents.append(agent)
 
-    agents.sort(key=sortBy, reverse=True)
+    # agents.sort(key=sortBy, reverse=True)
+    agents.sort(key=sortBy)
     return agents
 
 def sortBy(e):
-      return len(e['meetings'])
+    return e['id']
+    #   return len(e['meetings'])
 
 # list comprehension
 def search(id, agents):
@@ -75,7 +77,6 @@ def meetingSharedBy(agents, meetingId):
                 sharedBy.append(item['id'])
                 break
 
-    #print (sharedBy)
     sharedBy.sort()
     return sharedBy
 
@@ -127,8 +128,8 @@ def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
     # Open file 
-    inputFilename = 'dcop_constraint_graph'
-    # inputFilename = 'DCOP_Problem_100'
+    # inputFilename = 'dcop_constraint_graph'
+    inputFilename = 'DCOP_Problem_40'
 
     input = open(inputFilename, 'r') 
 
@@ -189,9 +190,9 @@ def main():
 
     nx.draw(T, layout, edge_color=colors, with_labels=True)
 
-    [trueNodes, pseudoNodes] = getChildren(T,2)
+    [trueNodes, pseudoNodes] = getChildren(T,3)
     print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
-    [trueParent, pseudoParent] = getParents(T,2)
+    [trueParent, pseudoParent] = getParents(T,3)
     print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
     leaves = getLeafNodes(T)
