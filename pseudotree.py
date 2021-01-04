@@ -51,11 +51,11 @@ def readMeetings(input, vars):
         else:
             agents.append(agent)
 
-    agents.sort(key=sortBy)
+    agents.sort(key=sortBy, reverse=True)
     return agents
 
 def sortBy(e):
-      return e['id']
+      return len(e['meetings'])
 
 # list comprehension
 def search(id, agents):
@@ -123,7 +123,6 @@ def compute_utils(tree, leaves):
     for n in leaves:
         print('Computing utility for node: ', n)
 
-
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
@@ -169,7 +168,7 @@ def main():
     
     # Convert to spanning tree
     T = nx.maximum_spanning_tree(G)
-
+    # T = nx.dfs_successors(G, 0)
     # Create back edges
     back_egdes.sort()
     for edge in back_egdes:
