@@ -113,12 +113,16 @@ def getLeafNodes(tree):
         if len(true_children + pseudo_children) == 0:
             leaves.append({'id': n, 'attributes': attr})
 
+    print('Tree leaves are: ', leaves)
     return leaves
     
 def intersection(lst1, lst2): 
     return list(set(lst1) & set(lst2)) 
 
-def compute_utils(tree, leaves, agents):
+def compute_utils(T):
+    # get leaves of tree
+    leaves = getLeafNodes(T)
+
     # compute utility from each leaf node and pass it to parents
     for leaf in leaves:
         # total_utility = np.zeros( (TIME_SLOTS, TIME_SLOTS) )
@@ -129,22 +133,20 @@ def compute_utils(tree, leaves, agents):
         leafPref=leaf['attributes']['preference']
 
         # find parent of current leaf
-        parent = getParent(tree, leafId, pseudo=False)
+        parent = getParent(T, leafId, pseudo=False)
         if parent == None:
             print('Node is root of tree, stop utility propagation')
             break
         
-        leaf_agent = agents[leaf]
-        parent_agent = agents[parent[0]]
-        leaf_pref = leaf_agent['preference']
+        parentMeetings=parent['attributes']['meetings']
+        parentPref=parent['attributes']['preference']
 
-        for key, value in leaf_agent['meetings'].items():
-            leaf_utility = value
-            parent_utility = parent_agent['meetings'][key]
-            parent_pref = parent_agent['preference']
+        for key, value in leafMeetings.items():
+            leafUtility = value
+            parentUtility = parentMeetings[key]
 
-            leaf_matrix = np.matrix(leaf_pref) * leaf_utility
-            parent_matrix = np.transpose(np.matrix(parent_pref) * parent_utility)
+            leaf_matrix = np.matrix(leafPref) * leafUtility
+            parent_matrix = np.transpose(np.matrix(parentPref) * parentUtility)
 
             print (np.matmul(parent_matrix, leaf_matrix))
 
@@ -226,9 +228,7 @@ def main():
     # [trueParent, pseudoParent] = getParents(T,3)
     # print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
-    leaves = getLeafNodes(T)
-    print(leaves)
-    compute_utils(T, leaves, agents)
+    compute_utils(T)
     plt.show()
 
 if __name__ == '__main__':
