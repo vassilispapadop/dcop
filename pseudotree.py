@@ -84,16 +84,12 @@ def meetingSharedBy(agents, meetingId):
 # return all children including pseudo-children
 # note, T is sorted meaning higher node_id is lower in tree-depth
 def getChildren(tree, node):
-    neighbors = tree.adj[node]
     true_children = []
     pseudo_children = []
-    for e in neighbors:
-        edge_color = tree.adj[node][e]['color']
-        if e > node:
-            if edge_color == 'b':
-                true_children.append(e)
-            else:
-                pseudo_children.append(e)
+    successors = [n for n in tree.adj[node] if n > node]
+    for s in successors:
+        edge_color = tree.adj[node][s]['color']
+        true_children.append(s) if edge_color == 'b' else pseudo_children.append(s)
 
     return true_children, pseudo_children
 
@@ -225,7 +221,7 @@ def main():
 
     nx.draw(T, layout, edge_color=colors, with_labels=True)
 
-    [trueNodes, pseudoNodes] = getChildren(T,3)
+    [trueNodes, pseudoNodes] = getChildren(T,1)
     print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
     # [trueParent, pseudoParent] = getParents(T,3)
     # print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
