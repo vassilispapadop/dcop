@@ -3,8 +3,9 @@ from networkx.classes.coreviews import AdjacencyView
 import matplotlib.pyplot as plt
 import pydot
 from networkx.drawing.nx_pydot import graphviz_layout
+import numpy as np
 
-TIME_SLOTS = 8
+TIME_SLOTS = 3
 
 def readLine(input):
     try:
@@ -14,9 +15,9 @@ def readLine(input):
 
     return int(a), int(b), int(c)
 
-def printAgents(agents):
-    for item in agents:
-        print(item)
+def printNodes(G):
+    for id, attr in G.nodes(data=True):
+        print('Node: ', id, ' Meetings: ', attr['meetings'], ' Preferences: ', attr['preference'])
 
 def readPreferences(input, agents, nrAgents):
     for a in range(nrAgents):
@@ -118,18 +119,49 @@ def getLeafNodes(tree):
             leaves.append(n)
 
     return leaves
+    
+def intersection(lst1, lst2): 
+    return list(set(lst1) & set(lst2)) 
 
-def compute_utils(tree, leaves):
+def compute_utils(tree, leaves, agents):
     # compute utility from each leaf node and pass it to parents
-    for n in leaves:
-        print('Computing utility for node: ', n)
+    for leaf in leaves:
+        # total_utility = np.zeros( (TIME_SLOTS, TIME_SLOTS) )
+        print('Computing utility for node: ', leaf)
+        # find parent of current leaf
+        [parent, _] = getParents(tree, leaf)
+        if len(parent) == 0:
+            print('Node is root of tree, stop utility propagation')
+            break
+        
+        leaf_agent = agents[leaf]
+        parent_agent = agents[parent[0]]
+        leaf_pref = leaf_agent['preference']
+
+        for key, value in leaf_agent['meetings'].items():
+            leaf_utility = value
+            parent_utility = parent_agent['meetings'][key]
+            parent_pref = parent_agent['preference']
+
+            leaf_matrix = np.matrix(leaf_pref) * leaf_utility
+            parent_matrix = np.transpose(np.matrix(parent_pref) * parent_utility)
+
+            print (np.matmul(parent_matrix, leaf_matrix))
+
+
+def addNodes(G, agents):
+    for agent in agents:
+        G.add_node(agent['id'], meetings=agent['meetings'], preference=agent['preference'])
+
+    return G
 
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
     # Open file 
     # inputFilename = 'dcop_constraint_graph'
-    inputFilename = 'DCOP_Problem_40'
+    inputFilename = 'dcop_simple'
+    # inputFilename = 'DCOP_Problem_40'
 
     input = open(inputFilename, 'r') 
 
@@ -142,15 +174,14 @@ def main():
     # Read preferences per agent
     agents = readPreferences(input, agents, nrAgents)
 
-    # Print agents
-    printAgents(agents)
-
     # Create graph
     G = nx.Graph()
     
     # Add agents/nodes
-    for agent in agents:
-        G.add_node(agent['id'])
+    G = addNodes(G, agents)
+
+    # Print nodes
+    printNodes(G)
 
     # Add edges and keep track of back-edges
     back_egdes = []
@@ -168,7 +199,7 @@ def main():
             i += 1
     
     # Convert to spanning tree
-    T = nx.maximum_spanning_tree(G)
+    T = nx.minimum_spanning_tree(G)
     # T = nx.dfs_successors(G, 0)
     # Create back edges
     back_egdes.sort()
@@ -197,7 +228,7 @@ def main():
 
     leaves = getLeafNodes(T)
     print(leaves)
-    compute_utils(T, leaves)
+    compute_utils(T, leaves, agents)
     plt.show()
 
 if __name__ == '__main__':
