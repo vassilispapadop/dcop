@@ -97,26 +97,25 @@ def getChildren(tree, node):
 
     return true_children, pseudo_children
 
-def getParents(tree, node):
-    neighbors = tree.adj[node]
-    true_parent = []
-    pseudo_parent = []
-    for e in neighbors:
-        edge_color = tree.adj[node][e]['color']
-        if e < node:
-            if edge_color == 'b':
-                true_parent.append(e)
-            else:
-                pseudo_parent.append(e)
+def getParent(tree, node, pseudo=False):
+    c = 'b' if pseudo == False else 'r'
+    # get all predecessors of current node 'node'
+    predecessors = [n for n in tree.adj[node] if n < node]
+    # iterate through predecessors and get true parent, predecessors might hold pseudo parents
+    for p in predecessors:
+        edge_color = tree.adj[node][p]['color']
+        if edge_color == c:
+            attr = tree.nodes(data=True)[p]
+            return {'id':p , 'attributes': attr}
 
-    return true_parent, pseudo_parent
+    return None
 
 def getLeafNodes(tree):
     leaves = []
-    for n in tree.nodes():
+    for n, attr in tree.nodes(data=True):
         [true_children, pseudo_children] = getChildren(tree,n)
         if len(true_children + pseudo_children) == 0:
-            leaves.append(n)
+            leaves.append({'id': n, 'attributes': attr})
 
     return leaves
     
@@ -128,9 +127,14 @@ def compute_utils(tree, leaves, agents):
     for leaf in leaves:
         # total_utility = np.zeros( (TIME_SLOTS, TIME_SLOTS) )
         print('Computing utility for node: ', leaf)
+
+        leafId=leaf['id']
+        leafMeetings=leaf['attributes']['meetings']
+        leafPref=leaf['attributes']['preference']
+
         # find parent of current leaf
-        [parent, _] = getParents(tree, leaf)
-        if len(parent) == 0:
+        parent = getParent(tree, leafId, pseudo=False)
+        if parent == None:
             print('Node is root of tree, stop utility propagation')
             break
         
@@ -223,8 +227,8 @@ def main():
 
     [trueNodes, pseudoNodes] = getChildren(T,3)
     print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
-    [trueParent, pseudoParent] = getParents(T,3)
-    print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
+    # [trueParent, pseudoParent] = getParents(T,3)
+    # print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
     leaves = getLeafNodes(T)
     print(leaves)
