@@ -7,6 +7,7 @@ import numpy as np
 
 TIME_SLOTS = 3
 
+# utilities
 def readLine(input):
     try:
         [a, b, c] = input.readline().strip().split(';')
@@ -55,6 +56,9 @@ def readMeetings(input, vars):
     # agents.sort(key=sortBy, reverse=True)
     agents.sort(key=sortBy)
     return agents
+
+def intersection(lst1, lst2): 
+    return list(set(lst1) & set(lst2)) 
 
 def sortBy(e):
     return e['id']
@@ -115,9 +119,6 @@ def getLeafNodes(tree):
 
     print('Tree leaves are: ', leaves)
     return leaves
-    
-def intersection(lst1, lst2): 
-    return list(set(lst1) & set(lst2)) 
 
 def compute_utils(T):
     # get leaves of tree
@@ -152,31 +153,45 @@ def compute_utils(T):
 
 
 def addNodes(G, agents):
+    print ('Adding nodes')
     for agent in agents:
         G.add_node(agent['id'], meetings=agent['meetings'], preference=agent['preference'])
 
     return G
 
 def addEdges(G, agents, nrMeetings):
-    back_egdes = []
+    print ('Adding edges and keep track of back edges')
+    back_edges_candidates = []
+    added = []
     for meetingId in range(0, nrMeetings):
         ids = meetingSharedBy(agents, meetingId)
         i = 0
         while i < len(ids) -1 :
             next = i + 1
             e = (ids[i], ids[next])
+            # since there is already an edge skip
+            if G.has_edge(*e):
+                i += 1
+                continue
+
             if len(G.adj[ids[i]]) < 2:
                 G.add_edge(*e,  color='b')
+                added.append(e)
             else:
-               back_egdes.append([*e])    
+                back_edges_candidates.append([*e])   
 
             i += 1
 
-    return G, back_egdes
+    return G, back_edges_candidates
 
-def addBackEdges(T, back_egdes):
-    back_egdes.sort()
-    for edge in back_egdes:
+def addBackEdges(T, back_edges_candidates):
+    print ('Adding back edges candidates', back_edges_candidates)
+    back_edges_candidates.sort()
+    for edge in back_edges_candidates:
+        has_edge = T.has_edge(*edge)
+        if has_edge:
+            continue
+
         [parent, _] = edge
         color = 'r'
         [true, pseudo] = getChildren(T, parent)
@@ -184,7 +199,7 @@ def addBackEdges(T, back_egdes):
             color = 'b'
 
         T.add_edge(*edge, color = color)
-        
+
     return T
 
 def main():
@@ -216,16 +231,14 @@ def main():
     printNodes(G)
 
     # Add edges and keep track of back-edges
-    [G, back_egdes] = addEdges(G, agents, nrMeetings)
+    [G, back_edges_candidates] = addEdges(G, agents, nrMeetings)
 
     # Convert to spanning tree
-    T = nx.minimum_spanning_tree(G)
+    T = nx.maximum_spanning_tree(G)
     # T = nx.dfs_successors(G, 0)
 
     # Create back edges
-    T = addBackEdges(T, back_egdes)
-
-    print('back-edges: ', back_egdes)
+    T = addBackEdges(T, back_edges_candidates)
 
     layout = graphviz_layout(T, prog="dot")
 
