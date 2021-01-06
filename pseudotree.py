@@ -97,6 +97,7 @@ def getChildren(tree, node):
 
     return true_children, pseudo_children
 
+#NOTE: check whether we need to distiguish between true and psedo parents
 def getParent(tree, node, pseudo=False):
     c = 'b' if pseudo == False else 'r'
     # get all predecessors of current node 'node'
@@ -119,6 +120,14 @@ def getLeafNodes(tree):
 
     print('Tree leaves are: ', leaves)
     return leaves
+
+def sendMessage(T, parentId, msg):
+    print('Updating parentId: ', parentId, ' from childId: ', msg['childId'])
+    UtilMsg = msg['msg']
+    T.nodes[parentId].update({'msg':msg})
+    node = T.nodes[parentId]
+    print('ela)')
+
 
 def compute_utils(T):
     # get leaves of tree
@@ -143,13 +152,18 @@ def compute_utils(T):
         parentPref=parent['attributes']['preference']
 
         for key, value in leafMeetings.items():
-            leafUtility = value
             parentUtility = parentMeetings[key]
+            # construct a SLOTS X SLOTS matrix
+            UTILMatrix = np.matmul(np.transpose(np.matrix(parentPref)) + parentUtility,
+                             np.matrix(leafPref) + value)
+            # main diagonal is -1 since no two meetings can be at the same time
+            np.fill_diagonal(UTILMatrix, -1)
+            # find per column maximum
+            MSG = {'childId': leafId, 'msg': np.array(np.max(UTILMatrix,axis=0))}
+            #  update parent msg (send message to parent)
+            print(UTILMatrix, MSG)
+            sendMessage(T, parent['id'], MSG)
 
-            leaf_matrix = np.matrix(leafPref) * leafUtility
-            parent_matrix = np.transpose(np.matrix(parentPref) * parentUtility)
-
-            print (np.matmul(parent_matrix, leaf_matrix))
 
 
 def addNodes(G, agents):
@@ -245,15 +259,15 @@ def main():
     edges = T.edges()
     colors = [T[u][v]['color'] for u,v in edges]
 
-    nx.draw(T, layout, edge_color=colors, with_labels=True)
+    # nx.draw(T, layout, edge_color=colors, with_labels=True)
 
     [trueNodes, pseudoNodes] = getChildren(T,1)
     print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
     # [trueParent, pseudoParent] = getParents(T,3)
     # print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
-    # compute_utils(T)
-    plt.show()
+    compute_utils(T)
+    # plt.show()
 
 if __name__ == '__main__':
     main()	
