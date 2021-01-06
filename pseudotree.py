@@ -157,6 +157,36 @@ def addNodes(G, agents):
 
     return G
 
+def addEdges(G, agents, nrMeetings):
+    back_egdes = []
+    for meetingId in range(0, nrMeetings):
+        ids = meetingSharedBy(agents, meetingId)
+        i = 0
+        while i < len(ids) -1 :
+            next = i + 1
+            e = (ids[i], ids[next])
+            if len(G.adj[ids[i]]) < 2:
+                G.add_edge(*e,  color='b')
+            else:
+               back_egdes.append([*e])    
+
+            i += 1
+
+    return G, back_egdes
+
+def addBackEdges(T, back_egdes):
+    back_egdes.sort()
+    for edge in back_egdes:
+        [parent, _] = edge
+        color = 'r'
+        [true, pseudo] = getChildren(T, parent)
+        if len(true+pseudo) < 2:
+            color = 'b'
+
+        T.add_edge(*edge, color = color)
+        
+    return T
+
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
@@ -186,33 +216,14 @@ def main():
     printNodes(G)
 
     # Add edges and keep track of back-edges
-    back_egdes = []
-    for meetingId in range(0, nrMeetings):
-        ids = meetingSharedBy(agents, meetingId)
-        i = 0
-        while i < len(ids) -1 :
-            next = i + 1
-            e = (ids[i], ids[next])
-            if len(G.adj[ids[i]]) < 2:
-                G.add_edge(*e,  color='b')
-            else:
-               back_egdes.append([*e])    
+    [G, back_egdes] = addEdges(G, agents, nrMeetings)
 
-            i += 1
-    
     # Convert to spanning tree
     T = nx.minimum_spanning_tree(G)
     # T = nx.dfs_successors(G, 0)
-    # Create back edges
-    back_egdes.sort()
-    for edge in back_egdes:
-        [parent, _] = edge
-        color = 'r'
-        [true, pseudo] = getChildren(T, parent)
-        if len(true+pseudo) < 2:
-            color = 'b'
 
-        T.add_edge(*edge, color = color)
+    # Create back edges
+    T = addBackEdges(T, back_egdes)
 
     print('back-edges: ', back_egdes)
 
@@ -228,7 +239,7 @@ def main():
     # [trueParent, pseudoParent] = getParents(T,3)
     # print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
-    compute_utils(T)
+    # compute_utils(T)
     plt.show()
 
 if __name__ == '__main__':
