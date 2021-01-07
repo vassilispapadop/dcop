@@ -87,13 +87,14 @@ def meetingSharedBy(agents, meetingId):
 
 # return all children including pseudo-children
 # note, T is sorted meaning higher node_id is lower in tree-depth
-def getChildren(tree, node):
+def getChildren(T, node):
     true_children = []
     pseudo_children = []
-    successors = [n for n in tree.adj[node] if n > node]
+    successors = [n for n in T.adj[node] if n > node]
     for s in successors:
-        edge_color = tree.adj[node][s]['color']
-        true_children.append(s) if edge_color == 'b' else pseudo_children.append(s)
+        child_node = T.nodes(data=True)[s]
+        edge_color = T.adj[node][s]['color']
+        true_children.append(child_node) if edge_color == 'b' else pseudo_children.append(child_node)
 
     return true_children, pseudo_children
 
@@ -106,8 +107,7 @@ def getParent(tree, node, pseudo=False):
     for p in predecessors:
         edge_color = tree.adj[node][p]['color']
         if edge_color == c:
-            attr = tree.nodes(data=True)[p]
-            return {'id':p , 'attributes': attr}
+            return tree.nodes(data=True)[p]
 
     return None
 
@@ -116,16 +116,16 @@ def getLeafNodes(tree):
     for n, attr in tree.nodes(data=True):
         [true_children, pseudo_children] = getChildren(tree,n)
         if len(true_children + pseudo_children) == 0:
-            leaves.append({'id': n, 'attributes': attr})
+            leaves.append(tree.nodes(data=True)[n])
 
     print('Tree leaves are: ', leaves)
     return leaves
 
-def sendMessage(T, parentId, msg):
-    print('Updating parentId: ', parentId, ' from childId: ', msg['childId'])
-    UtilMsg = msg['msg']
-    T.nodes[parentId]['util_msgs'].update({msg['childId']: msg['msg']})
-    node = T.nodes[parentId]
+def sendMessage(T, parentId, UtilMsg):
+    print('Updating parentId: ', parentId, ' from childId: ', UtilMsg['childId'])
+    parentNode = T.nodes[parentId]
+    parentNode['util_msgs'].update({UtilMsg['childId']: UtilMsg['msg']})
+    print('Parent: ', parentId, ' ', parentNode['util_msgs'])
 
 def compute_utils(T):
     # get leaves of tree
@@ -137,8 +137,8 @@ def compute_utils(T):
         print('Computing utility for node: ', leaf)
 
         leafId=leaf['id']
-        leafMeetings=leaf['attributes']['meetings']
-        leafPref=leaf['attributes']['preference']
+        leafMeetings=leaf['meetings']
+        leafPref=leaf['preference']
 
         # find parent of current leaf
         parent = getParent(T, leafId, pseudo=False)
@@ -146,8 +146,8 @@ def compute_utils(T):
             print('Node is root of tree, stop utility propagation')
             break
         
-        parentMeetings=parent['attributes']['meetings']
-        parentPref=parent['attributes']['preference']
+        parentMeetings=parent['meetings']
+        parentPref=parent['preference']
 
         for key, value in leafMeetings.items():
             parentUtility = parentMeetings[key]
@@ -167,7 +167,7 @@ def compute_utils(T):
 def addNodes(G, agents):
     print ('Adding nodes')
     for agent in agents:
-        G.add_node(agent['id'], meetings=agent['meetings'], 
+        G.add_node(agent['id'], id=agent['id'], meetings=agent['meetings'], 
                     preference=agent['preference'],
                     util_msgs={})
 
@@ -258,16 +258,17 @@ def main():
 
     edges = T.edges()
     colors = [T[u][v]['color'] for u,v in edges]
+    #print(list(nx.bfs_edges(T,3)))
+   
+    nx.draw(T, layout, edge_color=colors, with_labels=True)
 
-    # nx.draw(T, layout, edge_color=colors, with_labels=True)
-
-    [trueNodes, pseudoNodes] = getChildren(T,1)
-    print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
+    # [trueNodes, pseudoNodes] = getChildren(T,1)
+    # print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
     # [trueParent, pseudoParent] = getParents(T,3)
     # print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
-    compute_utils(T)
-    # plt.show()
+    # compute_utils(T)
+    plt.show()
 
 if __name__ == '__main__':
     main()	
