@@ -124,10 +124,8 @@ def getLeafNodes(tree):
 def sendMessage(T, parentId, msg):
     print('Updating parentId: ', parentId, ' from childId: ', msg['childId'])
     UtilMsg = msg['msg']
-    T.nodes[parentId].update({'msg':msg})
+    T.nodes[parentId]['util_msgs'].update({msg['childId']: msg['msg']})
     node = T.nodes[parentId]
-    print('ela)')
-
 
 def compute_utils(T):
     # get leaves of tree
@@ -169,7 +167,9 @@ def compute_utils(T):
 def addNodes(G, agents):
     print ('Adding nodes')
     for agent in agents:
-        G.add_node(agent['id'], meetings=agent['meetings'], preference=agent['preference'])
+        G.add_node(agent['id'], meetings=agent['meetings'], 
+                    preference=agent['preference'],
+                    util_msgs={})
 
     return G
 
