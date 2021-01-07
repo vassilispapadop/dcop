@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pydot
 from networkx.drawing.nx_pydot import graphviz_layout
 import numpy as np
-import yaml
+import json
 
 TIME_SLOTS = 3
 
@@ -124,13 +124,16 @@ def getLeafNodes(tree):
 
     print('')
     print('----------------Tree leaves are:----------------')
-    print(leaves)
+    print(json.dumps(leaves, indent=4, sort_keys=True))
+    # print(leaves)
     return leaves
 
 def sendMessage(T, parentId, UtilMsg):
     # print('Updating parentId: ', parentId, UtilMsg)
     parentNode = T.nodes[parentId]
     parentNode['util_msgs'].update({UtilMsg['childId']: UtilMsg})
+    # print(json.dumps(leaves, indent=4, sort_keys=True))
+
     print('Parent: ', parentId, '\n\t', parentNode['util_msgs'])
 
 def compute_utils(T):
@@ -141,7 +144,8 @@ def compute_utils(T):
     for leaf in leaves:
         print('')
         print('----------------Computing utility for node:----------------')
-        print(leaf)
+        print(json.dumps(leaf, indent=4, sort_keys=True))
+
 
         leafId=leaf['id']
         leafMeetings=leaf['meetings']
