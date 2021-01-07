@@ -154,10 +154,16 @@ def compute_utils(T):
             leafUtility = leafMeetings[key]
             parentUtility = parentMeetings[key]
             # construct a SLOTS X SLOTS matrix
-            UTILMatrix = np.matmul(np.transpose(np.matrix(parentPref)) + parentUtility,
-                             np.matrix(leafPref) + leafUtility)
-            # main diagonal is -1 since no two meetings can be at the same time
-            np.fill_diagonal(UTILMatrix, -1)
+            UTILMatrix = np.zeros(shape=(TIME_SLOTS,TIME_SLOTS))
+
+            for i in range(0,TIME_SLOTS):
+    	        for j in range(0,TIME_SLOTS):
+                    if i == j:
+                        UTILMatrix[i][j] = - 1
+                    else:
+                        UTILMatrix[i][j] = max(leafUtility * leafPref[j], 
+                                                parentUtility * parentPref[j])
+            
             # find per column maximum
             MSG = {'childId': leafId, 'msg': np.array(np.max(UTILMatrix,axis=0))}
             #  update parent msg (send message to parent)
@@ -221,8 +227,8 @@ def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
     # Open file 
-    inputFilename = 'dcop_constraint_graph'
-    # inputFilename = 'dcop_simple'
+    # inputFilename = 'dcop_constraint_graph'
+    inputFilename = 'dcop_simple'
     # inputFilename = 'DCOP_Problem_40'
 
     input = open(inputFilename, 'r') 
@@ -260,16 +266,10 @@ def main():
     edges = T.edges()
     colors = [T[u][v]['color'] for u,v in edges]
     #print(list(nx.bfs_edges(T,3)))
-   
-    nx.draw(T, layout, edge_color=colors, with_labels=True)
-
-    # [trueNodes, pseudoNodes] = getChildren(T,1)
-    # print('true children: ',trueNodes, 'pseudo children: ', pseudoNodes)
-    # [trueParent, pseudoParent] = getParents(T,3)
-    # print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
-
     compute_utils(T)
-    plt.show()
+
+    # nx.draw(T, layout, edge_color=colors, with_labels=True)
+    # plt.show()
 
 if __name__ == '__main__':
     main()	
