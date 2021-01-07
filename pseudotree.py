@@ -6,86 +6,8 @@ from networkx.drawing.nx_pydot import graphviz_layout
 import numpy as np
 import json
 from NodeAttributes import NodeAttributes
+import Utilities as u
 
-TIME_SLOTS = 3
-
-# utilities
-def readLine(input):
-    try:
-        [a, b, c] = input.readline().strip().split(';')
-    except ValueError as e:
-        return []
-
-    return int(a), int(b), int(c)
-
-def printNodes(G):
-    
-    for _, attr in G.nodes(data=True):
-        attr['attributes'].print_node()
-
-def readPreferences(input, agents, nrAgents):
-    for a in range(nrAgents):
-        for slot in range(TIME_SLOTS):
-            try:
-                [id,_,pref] = readLine(input)
-                agents[id]['preference'].append(pref)
-            except IndexError as e:
-                print('Agent ID: ', id,' not found')
-                break
-            except ValueError as ve:
-                print ('Value Error, AgentId:', id, ' not found')
-                break;
-
-    return agents
-
-def readMeetings(input, vars):
-    agents = []
-    for i in range(0, vars):
-        [agentId, meetingId, meetingUtil] = readLine(input)
-        agent = {
-                    'id': agentId,  
-                        'meetings': {
-                            meetingId: meetingUtil
-                        },
-                        'preference': []
-                }
-        index = search(agentId, agents)
-        if index > -1:
-            update_meeting = agents[index]
-            update_meeting['meetings'].update({meetingId:meetingUtil})
-        else:
-            agents.append(agent)
-
-    agents.sort(key=sortBy)
-    return agents
-
-def intersection(lst1, lst2): 
-    return list(set(lst1) & set(lst2)) 
-
-def sortBy(e):
-    return e['id']
-    #   return len(e['meetings'])
-
-# list comprehension
-def search(id, agents):
-    index = 0
-    while index < len(agents):
-        if agents[index]['id'] == id:
-            return index
-        index += 1
-    return -1        
-
-# finds all agents that share meeting based on meetingId    
-def meetingSharedBy(agents, meetingId):
-    sharedBy = []
-    for item in agents:
-        for m_id in item['meetings'].keys():
-            if m_id == meetingId:
-                sharedBy.append(item['id'])
-                break
-
-    sharedBy.sort()
-    return sharedBy
 
 # return all children including pseudo-children
 # note, T is sorted meaning higher node_id is lower in tree-depth
@@ -146,15 +68,15 @@ def compute_utils(T):
         p_attributes = parent['attributes']
 
         # find common meetings between those two
-        commonMeetings = intersection(attributes.meetings, p_attributes.meetings)
+        commonMeetings = u.intersection(attributes.meetings, p_attributes.meetings)
         for key in commonMeetings:
             leafUtility = attributes.meetings[key]
             parentUtility = p_attributes.meetings[key]
             # construct a SLOTS X SLOTS matrix
-            UTILMatrix = np.zeros(shape=(TIME_SLOTS,TIME_SLOTS))
+            UTILMatrix = np.zeros(shape=(u.TIME_SLOTS, u.TIME_SLOTS))
 
-            for i in range(0,TIME_SLOTS):
-    	        for j in range(0,TIME_SLOTS):
+            for i in range(0,u.TIME_SLOTS):
+    	        for j in range(0,u.TIME_SLOTS):
                     if i == j:
                         UTILMatrix[i][j] = - 1
                     else:
@@ -186,7 +108,7 @@ def addEdges(G, agents, nrMeetings):
     back_edges_candidates = []
     added = []
     for meetingId in range(0, nrMeetings):
-        ids = meetingSharedBy(agents, meetingId)
+        ids = u.meetingSharedBy(agents, meetingId)
         i = 0
         while i < len(ids) -1 :
             next = i + 1
@@ -237,13 +159,13 @@ def main():
     input = open(inputFilename, 'r') 
 
     # Read first line
-    [nrAgents, nrMeetings, nrVars] = readLine(input)
+    [nrAgents, nrMeetings, nrVars] = u.readLine(input)
 
     # Read agents/variables/constraints
-    agents = readMeetings(input, nrVars)
+    agents = u.readMeetings(input, nrVars)
 
     # Read preferences per agent
-    agents = readPreferences(input, agents, nrAgents)
+    agents = u.readPreferences(input, agents, nrAgents)
 
     # Create graph
     G = nx.Graph()
@@ -252,7 +174,7 @@ def main():
     G = addNodes(G, agents)
 
     # Print nodes
-    printNodes(G)
+    u.printNodes(G)
 
     # Add edges and keep track of back-edges
     [G, back_edges_candidates] = addEdges(G, agents, nrMeetings)
@@ -271,8 +193,8 @@ def main():
     #print(list(nx.bfs_edges(T,3)))
     compute_utils(T)
 
-    # nx.draw(T, layout, edge_color=colors, with_labels=True)
-    # plt.show()
+    nx.draw(T, layout, edge_color=colors, with_labels=True)
+    plt.show()
 
 if __name__ == '__main__':
     main()	
