@@ -122,9 +122,9 @@ def getLeafNodes(tree):
     return leaves
 
 def sendMessage(T, parentId, UtilMsg):
-    print('Updating parentId: ', parentId, ' from childId: ', UtilMsg['childId'])
+    print('Updating parentId: ', parentId, UtilMsg)
     parentNode = T.nodes[parentId]
-    parentNode['util_msgs'].update({UtilMsg['childId']: UtilMsg['msg']})
+    parentNode['util_msgs'].update({UtilMsg['childId']: UtilMsg})
     print('Parent: ', parentId, ' ', parentNode['util_msgs'])
 
 def compute_utils(T):
@@ -167,7 +167,7 @@ def compute_utils(T):
             # find per column maximum
             MSG = {'childId': leafId, 'meetingId':key, 'msg': np.array(np.max(UTILMatrix,axis=0))}
             #  update parent msg (send message to parent)
-            print(UTILMatrix, MSG)
+            print(UTILMatrix)
             sendMessage(T, parent['id'], MSG)
 
 
