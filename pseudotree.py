@@ -165,7 +165,7 @@ def compute_utils(T):
                                                 parentUtility * parentPref[j])
             
             # find per column maximum
-            MSG = {'childId': leafId, 'msg': np.array(np.max(UTILMatrix,axis=0))}
+            MSG = {'childId': leafId, 'meetingId':key, 'msg': np.array(np.max(UTILMatrix,axis=0))}
             #  update parent msg (send message to parent)
             print(UTILMatrix, MSG)
             sendMessage(T, parent['id'], MSG)
