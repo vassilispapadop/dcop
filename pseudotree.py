@@ -148,12 +148,14 @@ def compute_utils(T):
         
         parentMeetings=parent['meetings']
         parentPref=parent['preference']
-
-        for key, value in leafMeetings.items():
+        # find common meetings between those two
+        commonMeetings = intersection(leafMeetings, parentMeetings)
+        for key in commonMeetings:
+            leafUtility = leafMeetings[key]
             parentUtility = parentMeetings[key]
             # construct a SLOTS X SLOTS matrix
             UTILMatrix = np.matmul(np.transpose(np.matrix(parentPref)) + parentUtility,
-                             np.matrix(leafPref) + value)
+                             np.matrix(leafPref) + leafUtility)
             # main diagonal is -1 since no two meetings can be at the same time
             np.fill_diagonal(UTILMatrix, -1)
             # find per column maximum
@@ -170,7 +172,6 @@ def addNodes(G, agents):
         G.add_node(agent['id'], id=agent['id'], meetings=agent['meetings'], 
                     preference=agent['preference'],
                     util_msgs={})
-
     return G
 
 def addEdges(G, agents, nrMeetings):
@@ -220,8 +221,8 @@ def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
     # Open file 
-    # inputFilename = 'dcop_constraint_graph'
-    inputFilename = 'dcop_simple'
+    inputFilename = 'dcop_constraint_graph'
+    # inputFilename = 'dcop_simple'
     # inputFilename = 'DCOP_Problem_40'
 
     input = open(inputFilename, 'r') 
@@ -267,7 +268,7 @@ def main():
     # [trueParent, pseudoParent] = getParents(T,3)
     # print('true parent: ',trueParent, 'pseudo parent: ', pseudoParent)
 
-    # compute_utils(T)
+    compute_utils(T)
     plt.show()
 
 if __name__ == '__main__':
