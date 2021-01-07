@@ -5,6 +5,7 @@ import pydot
 from networkx.drawing.nx_pydot import graphviz_layout
 import numpy as np
 import json
+from NodeAttributes import NodeAttributes
 
 TIME_SLOTS = 3
 
@@ -19,10 +20,8 @@ def readLine(input):
 
 def printNodes(G):
     
-    for id, attr in G.nodes(data=True):
-        # d = {'Node': id, 'Meetings': attr['meetings'], 'Preferences': attr['preference']}
-        # print (yaml.dump(d, default_flow_style=False))
-        print('Node: ', id, ' Meetings: ', attr['meetings'], ' Preferences: ', attr['preference'])
+    for _, attr in G.nodes(data=True):
+        attr['attributes'].print_node()
 
 def readPreferences(input, agents, nrAgents):
     for a in range(nrAgents):
@@ -57,7 +56,6 @@ def readMeetings(input, vars):
         else:
             agents.append(agent)
 
-    # agents.sort(key=sortBy, reverse=True)
     agents.sort(key=sortBy)
     return agents
 
@@ -117,24 +115,16 @@ def getParent(tree, node, pseudo=False):
 
 def getLeafNodes(tree):
     leaves = []
-    for n, attr in tree.nodes(data=True):
+    for n in tree.nodes():
         [true_children, pseudo_children] = getChildren(tree,n)
         if len(true_children + pseudo_children) == 0:
             leaves.append(tree.nodes(data=True)[n])
 
     print('')
     print('----------------Tree leaves are:----------------')
-    print(json.dumps(leaves, indent=4, sort_keys=True))
-    # print(leaves)
+    for l in leaves:
+        l['attributes'].print_node()
     return leaves
-
-def sendMessage(T, parentId, UtilMsg):
-    # print('Updating parentId: ', parentId, UtilMsg)
-    parentNode = T.nodes[parentId]
-    parentNode['util_msgs'].update({UtilMsg['childId']: UtilMsg})
-    # print(json.dumps(leaves, indent=4, sort_keys=True))
-
-    print('Parent: ', parentId, '\n\t', parentNode['util_msgs'])
 
 def compute_utils(T):
     # get leaves of tree
@@ -144,26 +134,22 @@ def compute_utils(T):
     for leaf in leaves:
         print('')
         print('----------------Computing utility for node:----------------')
-        print(json.dumps(leaf, indent=4, sort_keys=True))
-
-
-        leafId=leaf['id']
-        leafMeetings=leaf['meetings']
-        leafPref=leaf['preference']
+        attributes = leaf['attributes']
+        attributes.print_node()
 
         # find parent of current leaf
-        parent = getParent(T, leafId, pseudo=False)
+        parent = getParent(T, attributes.id, pseudo=False)
         if parent == None:
             print('Node is root of tree, stop utility propagation')
             break
         
-        parentMeetings=parent['meetings']
-        parentPref=parent['preference']
+        p_attributes = parent['attributes']
+
         # find common meetings between those two
-        commonMeetings = intersection(leafMeetings, parentMeetings)
+        commonMeetings = intersection(attributes.meetings, p_attributes.meetings)
         for key in commonMeetings:
-            leafUtility = leafMeetings[key]
-            parentUtility = parentMeetings[key]
+            leafUtility = attributes.meetings[key]
+            parentUtility = p_attributes.meetings[key]
             # construct a SLOTS X SLOTS matrix
             UTILMatrix = np.zeros(shape=(TIME_SLOTS,TIME_SLOTS))
 
@@ -172,23 +158,26 @@ def compute_utils(T):
                     if i == j:
                         UTILMatrix[i][j] = - 1
                     else:
-                        UTILMatrix[i][j] = max(leafUtility * leafPref[j], 
-                                                parentUtility * parentPref[j])
+                        UTILMatrix[i][j] = max(leafUtility * attributes.preference[j], 
+                                                parentUtility * p_attributes.preference[j])
             
             # find per column maximum
-            MSG = {'childId': leafId, 'meetingId':key, 'msg': np.array(np.max(UTILMatrix,axis=0))}
+            MSG = {
+                    'childId': attributes.id, 
+                    'meetingId':key, 
+                    'util': np.array(np.max(UTILMatrix,axis=0))
+            }
             #  update parent msg (send message to parent)
+            p_attributes.addUtilMsg(MSG)
             print(UTILMatrix)
-            sendMessage(T, parent['id'], MSG)
 
 
 
 def addNodes(G, agents):
     print ('----------------Adding nodes----------------')
     for agent in agents:
-        G.add_node(agent['id'], id=agent['id'], meetings=agent['meetings'], 
-                    preference=agent['preference'],
-                    util_msgs={})
+        attr = NodeAttributes(agent['id'], agent['meetings'], agent['preference'])
+        G.add_node(agent['id'], attributes=attr)
     return G
 
 def addEdges(G, agents, nrMeetings):
