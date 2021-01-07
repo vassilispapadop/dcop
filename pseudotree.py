@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pydot
 from networkx.drawing.nx_pydot import graphviz_layout
 import numpy as np
+import yaml
 
 TIME_SLOTS = 3
 
@@ -17,7 +18,10 @@ def readLine(input):
     return int(a), int(b), int(c)
 
 def printNodes(G):
+    
     for id, attr in G.nodes(data=True):
+        # d = {'Node': id, 'Meetings': attr['meetings'], 'Preferences': attr['preference']}
+        # print (yaml.dump(d, default_flow_style=False))
         print('Node: ', id, ' Meetings: ', attr['meetings'], ' Preferences: ', attr['preference'])
 
 def readPreferences(input, agents, nrAgents):
@@ -118,14 +122,16 @@ def getLeafNodes(tree):
         if len(true_children + pseudo_children) == 0:
             leaves.append(tree.nodes(data=True)[n])
 
-    print('Tree leaves are: ', leaves)
+    print('')
+    print('----------------Tree leaves are:----------------')
+    print(leaves)
     return leaves
 
 def sendMessage(T, parentId, UtilMsg):
-    print('Updating parentId: ', parentId, UtilMsg)
+    # print('Updating parentId: ', parentId, UtilMsg)
     parentNode = T.nodes[parentId]
     parentNode['util_msgs'].update({UtilMsg['childId']: UtilMsg})
-    print('Parent: ', parentId, ' ', parentNode['util_msgs'])
+    print('Parent: ', parentId, '\n\t', parentNode['util_msgs'])
 
 def compute_utils(T):
     # get leaves of tree
@@ -133,8 +139,9 @@ def compute_utils(T):
 
     # compute utility from each leaf node and pass it to parents
     for leaf in leaves:
-        # total_utility = np.zeros( (TIME_SLOTS, TIME_SLOTS) )
-        print('Computing utility for node: ', leaf)
+        print('')
+        print('----------------Computing utility for node:----------------')
+        print(leaf)
 
         leafId=leaf['id']
         leafMeetings=leaf['meetings']
@@ -173,7 +180,7 @@ def compute_utils(T):
 
 
 def addNodes(G, agents):
-    print ('Adding nodes')
+    print ('----------------Adding nodes----------------')
     for agent in agents:
         G.add_node(agent['id'], id=agent['id'], meetings=agent['meetings'], 
                     preference=agent['preference'],
@@ -181,7 +188,8 @@ def addNodes(G, agents):
     return G
 
 def addEdges(G, agents, nrMeetings):
-    print ('Adding edges and keep track of back edges')
+    print('')
+    print ('----------------Adding edges and keep track of back edges----------------')
     back_edges_candidates = []
     added = []
     for meetingId in range(0, nrMeetings):
@@ -206,7 +214,9 @@ def addEdges(G, agents, nrMeetings):
     return G, back_edges_candidates
 
 def addBackEdges(T, back_edges_candidates):
-    print ('Adding back edges candidates', back_edges_candidates)
+    print('')
+    print ('----------------Adding back edges candidates----------------')
+    print(back_edges_candidates)
     back_edges_candidates.sort()
     for edge in back_edges_candidates:
         has_edge = T.has_edge(*edge)
