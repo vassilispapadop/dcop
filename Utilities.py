@@ -1,5 +1,5 @@
 TIME_SLOTS = 3
-SLOTS={
+SLOTS= {
 	0:"Morning",
 	1:"Afternoon",
 	2:"Evening"
