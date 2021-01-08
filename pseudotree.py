@@ -72,6 +72,9 @@ def addEdges(G, agents, nrMeetings):
 
             if len(G.adj[ids[i]]) < 2:
                 G.add_edge(*e,  color='b')
+                compute_util_matrix(G.nodes(data=True)[ids[i]]['attributes'], 
+                                        G.nodes(data=True)[ids[next]]['attributes'], 
+                                            meetingId)
                 added.append(e)
             else:
                 back_edges_candidates.append([*e])   
@@ -97,8 +100,35 @@ def addBackEdges(T, back_edges_candidates):
             color = 'b'
 
         T.add_edge(*edge, color = color)
+        [p, c] = edge
+        p_attributes = T.nodes(data=True)[p]['attributes']
+        c_attributes = T.nodes(data=True)[c]['attributes']
+        commonMeetings = u.intersection(p_attributes.meetings, c_attributes.meetings)
+        for key in commonMeetings:
+            compute_util_matrix(p_attributes, c_attributes, key)
 
     return T
 
 def getNodes(T):
     return T.nodes(data=True)
+
+def compute_util_matrix(parent, child, meetingId):
+    childUtility = child.meetings[meetingId]
+    parentUtility = parent.meetings[meetingId]
+    # construct a SLOTS X SLOTS matrix
+    UTILMatrix = np.zeros(shape=(u.TIME_SLOTS, u.TIME_SLOTS))
+
+    for i in range(0,u.TIME_SLOTS):
+        for j in range(0,u.TIME_SLOTS):
+            if i == j:
+                UTILMatrix[i][j] = - 1
+            else:
+                UTILMatrix[i][j] = max(childUtility * child.preference[j], 
+                                        parentUtility * parent.preference[j])
+    MSG = {
+        'withParentId': parent.id, 
+        'meetingId':meetingId, 
+        'util': UTILMatrix
+    }
+    child.addRelation(MSG)
+    return UTILMatrix   

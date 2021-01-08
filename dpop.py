@@ -8,22 +8,7 @@ import json
 from NodeAttributes import NodeAttributes
 import Utilities as u
 import Pseudotree as ptree
-
-def compute_util_matrix(parent, child, meetingId):
-    nodeUtility = child.meetings[meetingId]
-    parentUtility = parent.meetings[meetingId]
-    # construct a SLOTS X SLOTS matrix
-    UTILMatrix = np.zeros(shape=(u.TIME_SLOTS, u.TIME_SLOTS))
-
-    for i in range(0,u.TIME_SLOTS):
-        for j in range(0,u.TIME_SLOTS):
-            if i == j:
-                UTILMatrix[i][j] = - 1
-            else:
-                UTILMatrix[i][j] = max(nodeUtility * child.preference[j], 
-                                        parentUtility * parent.preference[j])
-    return UTILMatrix                                    
-
+                                 
 def compute_utils(T, nodes):
     # compute utility from each node and pass it to parents
     # keep track of parents
@@ -49,23 +34,18 @@ def compute_utils(T, nodes):
         # find common meetings between those two
         commonMeetings = u.intersection(n_attributes.meetings, p_attributes.meetings)
         for key in commonMeetings:
-            UTILMatrix = compute_util_matrix(p_attributes, n_attributes, key)          
-            # find per column maximum
-            MSG = {
-                    'childId': n_attributes.id, 
-                    'meetingId':key, 
-                    'util': np.array(np.max(UTILMatrix,axis=0))
-            }
-            #  update parent msg (send message to parent)
-            p_attributes.addUtilMsg(MSG)
-            print('Update parent with id: ', p_attributes.id, 'from child with id: ', n_attributes.id)
-            p_attributes.printNode()
-            # print(UTILMatrix)
-    
-    # compute join for each parent
-    # for p in parent:
-    #     aaa = p['attributes']
-    #     p['attributes'].joinUtilMsgs()
+            # UTILMatrix = ptree.compute_util_matrix(p_attributes, n_attributes, key)          
+            # # find per column maximum
+            # MSG = {
+            #         'childId': n_attributes.id, 
+            #         'meetingId':key, 
+            #         'util': np.array(np.max(UTILMatrix,axis=0))
+            # }
+            # #  update parent msg (send message to parent)
+            # p_attributes.addUtilMsg(MSG)
+            # print('Update parent with id: ', p_attributes.id, 'from child with id: ', n_attributes.id)
+            # p_attributes.printNode()
+            print('')
 
     compute_utils(T,parents)
 
@@ -93,9 +73,6 @@ def main():
     # Add agents/nodes
     G = ptree.addNodes(G, agents)
 
-    # Print nodes
-    u.printNodes(G)
-
     # Add edges and keep track of back-edges
     [G, back_edges_candidates] = ptree.addEdges(G, agents, nrMeetings)
 
@@ -105,6 +82,10 @@ def main():
 
     # Create back edges
     T = ptree.addBackEdges(T, back_edges_candidates)
+
+    # Print nodes
+    u.printNodes(T)
+
 
     layout = graphviz_layout(T, prog="dot")
 

@@ -8,10 +8,11 @@ class NodeAttributes:
         self.meetings = _meetings
         self.preference = _preference 
         self.util_msgs = {}
+        self.relations = {}
         self.join = np.zeros((u.TIME_SLOTS, u.TIME_SLOTS))
 
-    def addUtilMsg(self, util_msg):
-        self.util_msgs[util_msg['childId']] = util_msg
+    def addRelation(self, relation):
+        self.relations[relation['withParentId']] = relation
 
     def joinUtilMsgs(self):
         for i in range(0, u.TIME_SLOTS):
@@ -26,7 +27,7 @@ class NodeAttributes:
     def printNode(self):
         info = {'id': self.id, 'meetings':self.meetings, 
                     'preference': self.preference, 
-                    'util_msgs': self.util_msgs,
+                    'relations': self.relations,
                     'join': self.joinUtilMsgs }
         print(info)
         # print(json.dumps(text, indent=4, sort_keys=True))

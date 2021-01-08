@@ -53,7 +53,6 @@ def printNodes(G):
     for _, attr in G.nodes(data=True):
         attr['attributes'].printNode()
 
-
 def sortBy(e):
     return e['id']
     #   return len(e['meetings'])
