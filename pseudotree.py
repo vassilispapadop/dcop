@@ -49,8 +49,9 @@ def getLeafNodes(tree):
     return leaves
 
 def compute_utils(T, nodes):
-
     # compute utility from each node and pass it to parents
+    # keep track of parents
+    parents = []
     for node in nodes:
         n_attributes = node['attributes']
         print('')
@@ -60,9 +61,11 @@ def compute_utils(T, nodes):
         # find parent of current node
         parent = getParent(T, n_attributes.id, pseudo=False)
         if parent == None:
-            print('Node is root of tree, stop utility propagation')
-            break
-        
+            print('Node is root of tree, stop Util propagation and proceed with Value propagation')
+            n_attributes.print_node()
+            return
+
+        parents.append(parent)
         p_attributes = parent['attributes']
 
         # find common meetings between those two
@@ -89,8 +92,10 @@ def compute_utils(T, nodes):
             }
             #  update parent msg (send message to parent)
             p_attributes.addUtilMsg(MSG)
-            # p_attributes.print_node()
-            print(UTILMatrix)
+            p_attributes.print_node()
+            # print(UTILMatrix)
+
+    compute_utils(T,parents)
 
 def addNodes(G, agents):
     print ('----------------Adding nodes----------------')

@@ -11,6 +11,7 @@ class NodeAttributes:
         self.util_msgs[util_msg['childId']] = util_msg
 
     def print_node(self):
-        text = {'id': self.id, 'meetings':self.meetings, 
+        info = {'id': self.id, 'meetings':self.meetings, 
                     'preference': self.preference, 'util_msgs': self.util_msgs }
-        print(json.dumps(text, indent=4, sort_keys=True))
+        print(info)
+        # print(json.dumps(text, indent=4, sort_keys=True))
