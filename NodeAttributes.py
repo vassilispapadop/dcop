@@ -15,3 +15,4 @@ class NodeAttributes:
                     'preference': self.preference, 'util_msgs': self.util_msgs }
         print(info)
         # print(json.dumps(text, indent=4, sort_keys=True))
+    
