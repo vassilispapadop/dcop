@@ -44,7 +44,7 @@ def readPreferences(input, agents, nrAgents):
                 break
             except ValueError as ve:
                 print ('Value Error, AgentId:', id, ' not found')
-                break;
+                break
 
     return agents
 

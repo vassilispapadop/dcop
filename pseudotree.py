@@ -48,19 +48,17 @@ def getLeafNodes(tree):
         l['attributes'].print_node()
     return leaves
 
-def compute_utils(T):
-    # get leaves of tree
-    leaves = getLeafNodes(T)
+def compute_utils(T, nodes):
 
-    # compute utility from each leaf node and pass it to parents
-    for leaf in leaves:
+    # compute utility from each node and pass it to parents
+    for node in nodes:
+        n_attributes = node['attributes']
         print('')
-        print('----------------Computing utility for node:----------------')
-        attributes = leaf['attributes']
-        attributes.print_node()
+        print('----------------Computing utility for node: ', n_attributes.id, '----------------')
+        # n_attributes.print_node()
 
-        # find parent of current leaf
-        parent = getParent(T, attributes.id, pseudo=False)
+        # find parent of current node
+        parent = getParent(T, n_attributes.id, pseudo=False)
         if parent == None:
             print('Node is root of tree, stop utility propagation')
             break
@@ -68,9 +66,9 @@ def compute_utils(T):
         p_attributes = parent['attributes']
 
         # find common meetings between those two
-        commonMeetings = u.intersection(attributes.meetings, p_attributes.meetings)
+        commonMeetings = u.intersection(n_attributes.meetings, p_attributes.meetings)
         for key in commonMeetings:
-            leafUtility = attributes.meetings[key]
+            nodeUtility = n_attributes.meetings[key]
             parentUtility = p_attributes.meetings[key]
             # construct a SLOTS X SLOTS matrix
             UTILMatrix = np.zeros(shape=(u.TIME_SLOTS, u.TIME_SLOTS))
@@ -80,20 +78,19 @@ def compute_utils(T):
                     if i == j:
                         UTILMatrix[i][j] = - 1
                     else:
-                        UTILMatrix[i][j] = max(leafUtility * attributes.preference[j], 
+                        UTILMatrix[i][j] = max(nodeUtility * n_attributes.preference[j], 
                                                 parentUtility * p_attributes.preference[j])
             
             # find per column maximum
             MSG = {
-                    'childId': attributes.id, 
+                    'childId': n_attributes.id, 
                     'meetingId':key, 
                     'util': np.array(np.max(UTILMatrix,axis=0))
             }
             #  update parent msg (send message to parent)
             p_attributes.addUtilMsg(MSG)
+            # p_attributes.print_node()
             print(UTILMatrix)
-
-
 
 def addNodes(G, agents):
     print ('----------------Adding nodes----------------')
@@ -155,7 +152,6 @@ def main():
     # inputFilename = 'dcop_constraint_graph'
     inputFilename = 'dcop_simple'
     # inputFilename = 'DCOP_Problem_40'
-
     input = open(inputFilename, 'r') 
 
     # Read first line
@@ -191,10 +187,10 @@ def main():
     edges = T.edges()
     colors = [T[u][v]['color'] for u,v in edges]
     #print(list(nx.bfs_edges(T,3)))
-    compute_utils(T)
+    compute_utils(T, getLeafNodes(T))
 
-    nx.draw(T, layout, edge_color=colors, with_labels=True)
-    plt.show()
+    # nx.draw(T, layout, edge_color=colors, with_labels=True)
+    # plt.show()
 
 if __name__ == '__main__':
     main()	
