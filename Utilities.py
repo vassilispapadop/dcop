@@ -51,7 +51,7 @@ def readPreferences(input, agents, nrAgents):
 def printNodes(G):
     
     for _, attr in G.nodes(data=True):
-        attr['attributes'].print_node()
+        attr['attributes'].printNode()
 
 
 def sortBy(e):

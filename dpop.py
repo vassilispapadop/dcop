@@ -9,6 +9,20 @@ from NodeAttributes import NodeAttributes
 import Utilities as u
 import Pseudotree as ptree
 
+def compute_util_matrix(parent, child, meetingId):
+    nodeUtility = child.meetings[meetingId]
+    parentUtility = parent.meetings[meetingId]
+    # construct a SLOTS X SLOTS matrix
+    UTILMatrix = np.zeros(shape=(u.TIME_SLOTS, u.TIME_SLOTS))
+
+    for i in range(0,u.TIME_SLOTS):
+        for j in range(0,u.TIME_SLOTS):
+            if i == j:
+                UTILMatrix[i][j] = - 1
+            else:
+                UTILMatrix[i][j] = max(nodeUtility * child.preference[j], 
+                                        parentUtility * parent.preference[j])
+    return UTILMatrix                                    
 
 def compute_utils(T, nodes):
     # compute utility from each node and pass it to parents
@@ -18,15 +32,15 @@ def compute_utils(T, nodes):
         n_attributes = node['attributes']
         print('')
         print('----------------Computing utility for node: ', n_attributes.id, '----------------')
-        # n_attributes.print_node()
-
+        n_attributes.joinUtilMsgs()
         # find parent of current node
         parent = ptree.getParent(T, n_attributes.id, pseudo=False)
         if parent == None:
             print('Node is root of tree, stop Util propagation and proceed with Value propagation')
-            n_attributes.print_node()
+            n_attributes.printNode()
             return
-            
+
+        # do not add same parent 
         if parent not in parents:
             parents.append(parent)
         
@@ -35,19 +49,7 @@ def compute_utils(T, nodes):
         # find common meetings between those two
         commonMeetings = u.intersection(n_attributes.meetings, p_attributes.meetings)
         for key in commonMeetings:
-            nodeUtility = n_attributes.meetings[key]
-            parentUtility = p_attributes.meetings[key]
-            # construct a SLOTS X SLOTS matrix
-            UTILMatrix = np.zeros(shape=(u.TIME_SLOTS, u.TIME_SLOTS))
-
-            for i in range(0,u.TIME_SLOTS):
-    	        for j in range(0,u.TIME_SLOTS):
-                    if i == j:
-                        UTILMatrix[i][j] = - 1
-                    else:
-                        UTILMatrix[i][j] = max(nodeUtility * n_attributes.preference[j], 
-                                                parentUtility * p_attributes.preference[j])
-            
+            UTILMatrix = compute_util_matrix(p_attributes, n_attributes, key)          
             # find per column maximum
             MSG = {
                     'childId': n_attributes.id, 
@@ -57,8 +59,13 @@ def compute_utils(T, nodes):
             #  update parent msg (send message to parent)
             p_attributes.addUtilMsg(MSG)
             print('Update parent with id: ', p_attributes.id, 'from child with id: ', n_attributes.id)
-            p_attributes.print_node()
+            p_attributes.printNode()
             # print(UTILMatrix)
+    
+    # compute join for each parent
+    # for p in parent:
+    #     aaa = p['attributes']
+    #     p['attributes'].joinUtilMsgs()
 
     compute_utils(T,parents)
 
@@ -66,9 +73,9 @@ def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
     # Open file 
-    # inputFilename = 'dcop_constraint_graph'
+    # inputFilename = 'constraint_graphs/dcop_constraint_graph'
     inputFilename = 'constraint_graphs/dcop_simple'
-    # inputFilename = 'DCOP_Problem_40'
+    # inputFilename = 'constraint_graphs/DCOP_Problem_40'
     input = open(inputFilename, 'r') 
 
     # Read first line
@@ -105,7 +112,7 @@ def main():
     colors = [T[u][v]['color'] for u,v in edges]
     #print(list(nx.bfs_edges(T,3)))
     compute_utils(T, ptree.getLeafNodes(T))
-
+    
     # nx.draw(T, layout, edge_color=colors, with_labels=True)
     # plt.show()
 

@@ -21,31 +21,30 @@ def getChildren(T, node):
         true_children.append(child_node) if edge_color == 'b' else pseudo_children.append(child_node)
 
     return true_children, pseudo_children
-
 #NOTE: check whether we need to distiguish between true and psedo parents
-def getParent(tree, node, pseudo=False):
+def getParent(T, node, pseudo=False):
     c = 'b' if pseudo == False else 'r'
     # get all predecessors of current node 'node'
-    predecessors = [n for n in tree.adj[node] if n < node]
+    predecessors = [n for n in T.adj[node] if n < node]
     # iterate through predecessors and get true parent, predecessors might hold pseudo parents
     for p in predecessors:
-        edge_color = tree.adj[node][p]['color']
+        edge_color = T.adj[node][p]['color']
         if edge_color == c:
-            return tree.nodes(data=True)[p]
+            return T.nodes(data=True)[p]
 
     return None
-
-def getLeafNodes(tree):
+# returns leaves of tree
+def getLeafNodes(T):
     leaves = []
-    for n in tree.nodes():
-        [true_children, pseudo_children] = getChildren(tree,n)
+    for n in T.nodes():
+        [true_children, pseudo_children] = getChildren(T,n)
         if len(true_children + pseudo_children) == 0:
-            leaves.append(tree.nodes(data=True)[n])
+            leaves.append(T.nodes(data=True)[n])
 
     print('')
     print('----------------Tree leaves are:----------------')
     for l in leaves:
-        l['attributes'].print_node()
+        l['attributes'].printNode()
     return leaves
 
 def addNodes(G, agents):
@@ -101,3 +100,5 @@ def addBackEdges(T, back_edges_candidates):
 
     return T
 
+def getNodes(T):
+    return T.nodes(data=True)
