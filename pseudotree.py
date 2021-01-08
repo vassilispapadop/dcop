@@ -41,10 +41,10 @@ def getLeafNodes(T):
         if len(true_children + pseudo_children) == 0:
             leaves.append(T.nodes(data=True)[n])
 
-    print('')
-    print('----------------Tree leaves are:----------------')
-    for l in leaves:
-        l['attributes'].printNode()
+    # print('')
+    # print('----------------Tree leaves are:----------------')
+    # for l in leaves:
+    #     l['attributes'].printNode()
     return leaves
 
 def addNodes(G, agents):

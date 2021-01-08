@@ -84,6 +84,7 @@ def main():
     T = ptree.addBackEdges(T, back_edges_candidates)
 
     # Print nodes
+    print('----------------ALL NODES----------------')
     u.printNodes(T)
 
 
@@ -94,8 +95,8 @@ def main():
     #print(list(nx.bfs_edges(T,3)))
     compute_utils(T, ptree.getLeafNodes(T))
     
-    # nx.draw(T, layout, edge_color=colors, with_labels=True)
-    # plt.show()
+    nx.draw(T, layout, edge_color=colors, with_labels=True)
+    plt.show()
 
 if __name__ == '__main__':
     main()	

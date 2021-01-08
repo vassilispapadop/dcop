@@ -29,6 +29,7 @@ class NodeAttributes:
                     'preference': self.preference, 
                     'relations': self.relations,
                     'join': self.joinUtilMsgs }
+        print('--------------------------------------------------------------------------------------')
         print(info)
         # print(json.dumps(text, indent=4, sort_keys=True))
     
