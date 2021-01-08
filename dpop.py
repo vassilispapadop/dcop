@@ -22,7 +22,7 @@ def compute_utils(T, nodes):
         parent = ptree.getParent(T, n_attributes.id, pseudo=False)
         if parent == None:
             print('Node is root of tree, stop Util propagation and proceed with Value propagation')
-            n_attributes.printNode()
+            # n_attributes.printNode()
             return
 
         # do not add same parent 
@@ -34,18 +34,12 @@ def compute_utils(T, nodes):
         # find common meetings between those two
         commonMeetings = u.intersection(n_attributes.meetings, p_attributes.meetings)
         for key in commonMeetings:
-            # UTILMatrix = ptree.compute_util_matrix(p_attributes, n_attributes, key)          
-            # # find per column maximum
-            # MSG = {
-            #         'childId': n_attributes.id, 
-            #         'meetingId':key, 
-            #         'util': np.array(np.max(UTILMatrix,axis=0))
-            # }
-            # #  update parent msg (send message to parent)
-            # p_attributes.addUtilMsg(MSG)
-            # print('Update parent with id: ', p_attributes.id, 'from child with id: ', n_attributes.id)
-            # p_attributes.printNode()
-            print('')
+            msg = {
+                'meetingId': key,
+                'childId': n_attributes.id,
+                'util': np.array(np.max(n_attributes.relations[p_attributes.id]['matrix'], axis=0))
+            }
+            p_attributes.addUtilMsg(msg)
 
     compute_utils(T,parents)
 
@@ -85,7 +79,7 @@ def main():
 
     # Print nodes
     print('----------------ALL NODES----------------')
-    u.printNodes(T)
+    # u.printNodes(T)
 
 
     layout = graphviz_layout(T, prog="dot")
@@ -95,8 +89,12 @@ def main():
     #print(list(nx.bfs_edges(T,3)))
     compute_utils(T, ptree.getLeafNodes(T))
     
-    nx.draw(T, layout, edge_color=colors, with_labels=True)
-    plt.show()
+    # nx.draw(T, layout, edge_color=colors, with_labels=True)
+    # plt.show()
+
+        # Print nodes
+    print('----------------ALL NODES----------------')
+    u.printNodes(T)
 
 if __name__ == '__main__':
     main()	

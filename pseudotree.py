@@ -128,7 +128,7 @@ def compute_util_matrix(parent, child, meetingId):
     MSG = {
         'withParentId': parent.id, 
         'meetingId':meetingId, 
-        'util': UTILMatrix
+        'matrix': UTILMatrix
     }
     child.addRelation(MSG)
     return UTILMatrix   

@@ -13,6 +13,9 @@ class NodeAttributes:
 
     def addRelation(self, relation):
         self.relations[relation['withParentId']] = relation
+    
+    def addUtilMsg(self, msg):
+        self.util_msgs[msg['meetingId']] = msg
 
     def joinUtilMsgs(self):
         for i in range(0, u.TIME_SLOTS):
@@ -25,11 +28,18 @@ class NodeAttributes:
 
 
     def printNode(self):
-        info = {'id': self.id, 'meetings':self.meetings, 
-                    'preference': self.preference, 
+        info = {'id': self.id, 
                     'relations': self.relations,
-                    'join': self.joinUtilMsgs }
-        print('--------------------------------------------------------------------------------------')
-        print(info)
-        # print(json.dumps(text, indent=4, sort_keys=True))
-    
+                    'msgs': self.util_msgs }
+        try:
+            maxU=np.max(self.util_msgs[0]['util'])
+            choice=np.where(self.util_msgs[0]['util']==maxU)
+            choice=choice[0][0]
+            # choice = np.max(self.util_msgs[0]['util'], axis=0) 
+            # numpy.where(maxU == numpy.amax(self.util_msgs[0]['util']))
+            print('--------------------------------------------------------------------------------------')
+            print("Node " + str(self.id) + " choice is " + u.SLOTS[choice])
+            # print(info)
+            # print(json.dumps(info, indent=4, sort_keys=True))
+        except KeyError as e:
+            pass
