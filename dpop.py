@@ -47,8 +47,8 @@ def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
 
     # Open file 
-    # inputFilename = 'constraint_graphs/dcop_constraint_graph'
-    inputFilename = 'constraint_graphs/dcop_simple'
+    inputFilename = 'constraint_graphs/dcop_constraint_graph'
+    # inputFilename = 'constraint_graphs/dcop_simple'
     # inputFilename = 'constraint_graphs/DCOP_Problem_40'
     input = open(inputFilename, 'r') 
 

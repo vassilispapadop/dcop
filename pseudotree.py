@@ -120,11 +120,13 @@ def compute_util_matrix(parent, child, meetingId):
 
     for i in range(0,u.TIME_SLOTS):
         for j in range(0,u.TIME_SLOTS):
-            if i == j:
-                UTILMatrix[i][j] = - 1
-            else:
-                UTILMatrix[i][j] = max(childUtility * child.preference[j], 
-                                        parentUtility * parent.preference[j])
+            UTILMatrix[i][j] = max(childUtility * child.preference[j], 
+                        parentUtility * parent.preference[j])
+            # if i == j:
+            #     UTILMatrix[i][j] = - 1
+            # else:
+            #     UTILMatrix[i][j] = max(childUtility * child.preference[j], 
+            #                             parentUtility * parent.preference[j])
     MSG = {
         'withParentId': parent.id, 
         'meetingId':meetingId, 

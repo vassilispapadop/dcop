@@ -2,7 +2,12 @@ TIME_SLOTS = 3
 SLOTS= {
 	0:"Morning",
 	1:"Afternoon",
-	2:"Evening"
+	2:"Evening",
+    3:"Adsf",
+    4:"asdf",
+    5:"hhg",
+    6:"sdgh",
+    7:"fg45h"
 }
 
 
