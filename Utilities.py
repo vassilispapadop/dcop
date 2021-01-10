@@ -50,6 +50,7 @@ def readPreferences(input, agents, nrAgents):
             try:
                 [id,_,pref] = readLine(input)
                 agents[id]['preference'].append(pref)
+    
             except IndexError as e:
                 print('Agent ID: ', id,' not found')
                 break

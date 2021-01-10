@@ -52,6 +52,7 @@ def addNodes(G, agents):
     for agent in agents:
         attr = NodeAttributes(agent['id'], agent['meetings'], agent['preference'])
         G.add_node(agent['id'], attributes=attr)
+    
     return G
 
 def addEdges(G, agents, nrMeetings):

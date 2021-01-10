@@ -1,3 +1,4 @@
+import sys
 import networkx as nx
 from networkx.classes.coreviews import AdjacencyView
 import matplotlib.pyplot as plt
@@ -44,12 +45,21 @@ def compute_utils(T, nodes):
     compute_utils(T,parents)
 
 def main():
-    # 1st row: Number of agents;Number of meetings;Number of variables
-
     # Open file 
-    inputFilename = 'constraint_graphs/dcop_constraint_graph'
-    # inputFilename = 'constraint_graphs/dcop_simple'
+    # inputFilename = 'constraint_graphs/dcop_constraint_graph'
+    inputFilename = 'constraint_graphs/dcop_simple'
     # inputFilename = 'constraint_graphs/DCOP_Problem_40'
+    u.TIME_SLOTS = 3
+
+    if(len(sys.argv)>2):
+        inputFilename=sys.argv[1]	
+        u.TIME_SLOTS = int(sys.argv[2])
+        print("Reading from: %s", inputFilename)
+        print("TIME_SLOTS: ", str(u.TIME_SLOTS))
+    else:
+        print("Running default constraint file")
+
+
     input = open(inputFilename, 'r') 
 
     # Read first line
