@@ -14259,7 +14259,7 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Constraint-Optimization-Single-Agent">Constraint Optimization Single Agent<a class="anchor-link" href="#Constraint-Optimization-Single-Agent">&#182;</a></h2><p>An agent(A) wishes to participate in one or more meetings(M). Each meeting has 8 possible time slots which can be held. Agent's job is to schedule these meetings in an arrangement such that its total utitily is maximized. The agent has preferences meaning it might prefer meetings to be held during early hours or later in the day or it could be neutral. Every meeting has a utitily(U). We assume that meetings with higher utitily value, given that the agent prefers meetings to be held early in the morning will be scheduled before meetings with lower utitily.</p>
+<h1 id="Constraint-Optimization-Single-Agent">Constraint Optimization Single Agent<a class="anchor-link" href="#Constraint-Optimization-Single-Agent">&#182;</a></h1><p>An agent(A) wishes to participate in one or more meetings(M). Each meeting has 8 possible time slots which can be held. Agent's job is to schedule these meetings in an arrangement such that its total utitily is maximized. The agent has preferences meaning it might prefer meetings to be held during early hours or later in the day or it could be neutral. Every meeting has a utitily(U). We assume that meetings with higher utitily value, given that the agent prefers meetings to be held early in the morning will be scheduled before meetings with lower utitily.</p>
 <p>Preference table for agent $A_{i}$:</p>
 <table>
 <thead><tr>
@@ -14278,28 +14278,79 @@ a.anchor-link {
 </tr>
 </tbody>
 </table>
-<p>Meetings and their utilities for agent $A_{i}$:</p>
+<p>Meetings and their utilities for agent $A_{i}$. A meeting $M_{i}$ will be scheduled before $M_{j}$, if $U_{i} &gt; U_{j}$. Symbol $&lt;$ in constrains column in table below indicates that a meeting $i$ is preferred to scheduled before meeting $j$</p>
 <table>
 <thead><tr>
 <th style="text-align:center">Meeting</th>
 <th style="text-align:center">Utility</th>
+<th style="text-align:left">Constraints</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:center">$M_{1}$</td>
 <td style="text-align:center">4</td>
+<td style="text-align:left">$M_{1}&lt;M_{3}, M_{1}&gt;M_{2}$</td>
 </tr>
 <tr>
 <td style="text-align:center">$M_{2}$</td>
 <td style="text-align:center">6</td>
+<td style="text-align:left">$M_{2}&lt;M_{1},M_{2}&lt;M_{3} $</td>
 </tr>
 <tr>
 <td style="text-align:center">$M_{3}$</td>
 <td style="text-align:center">3</td>
+<td style="text-align:left">$M_{3}&gt;M_{1}, M_{3}&gt;M_{2}$</td>
 </tr>
 </tbody>
 </table>
+<h3 id="Relationship-matrix">Relationship matrix<a class="anchor-link" href="#Relationship-matrix">&#182;</a></h3><p>From the above we could caclulate relationship matrices for meetings $M_{1}, M_{2}, M_{3}$. A relationship matrix $r^{j}_{i}$ is defined as follow. Let's consider $M_{1}, M_{2}$</p>
+<table>
+<thead><tr>
+<th style="text-align:left"></th>
+<th style="text-align:center">Morning</th>
+<th style="text-align:center">Afternoon</th>
+<th style="text-align:center">Evening</th>
+<th style="text-align:center"></th>
+<th style="text-align:center">Morning</th>
+<th style="text-align:center">Afternoon</th>
+<th style="text-align:center">Evening</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Morning</td>
+<td style="text-align:center">-1</td>
+<td style="text-align:center">max(4X10, 6X5)</td>
+<td style="text-align:center">max(4X10, 6X3)</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">-1</td>
+<td style="text-align:center">40</td>
+<td style="text-align:center">40  </td>
+</tr>
+<tr>
+<td style="text-align:left">Afternoon</td>
+<td style="text-align:center">max(4X5, 6X10)</td>
+<td style="text-align:center">-1</td>
+<td style="text-align:center">max(4X5, 6X2)</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">60</td>
+<td style="text-align:center">-1</td>
+<td style="text-align:center">20 </td>
+</tr>
+<tr>
+<td style="text-align:left">Evening</td>
+<td style="text-align:center">max(4X2, 6X10)</td>
+<td style="text-align:center">max(4X2, 6X5)</td>
+<td style="text-align:center">-1</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">60</td>
+<td style="text-align:center">30</td>
+<td style="text-align:center">-1</td>
+</tr>
+</tbody>
+</table>
+<p>Main diagonal is set to -1 because no two meetings can be scheduled at the same time.</p>
 
 </div>
 </div>
