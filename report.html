@@ -14259,7 +14259,7 @@ a.anchor-link {
 
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Constraint-Optimization-Single-Agent">Constraint Optimization Single Agent<a class="anchor-link" href="#Constraint-Optimization-Single-Agent">&#182;</a></h1><p>An agent(A) wishes to participate in one or more meetings(M). Each meeting has 8 possible time slots which can be held. Agent's job is to schedule these meetings in an arrangement such that its total utitily is maximized. The agent has preferences meaning it might prefer meetings to be held during early hours or later in the day or it could be neutral. Every meeting has a utitily(U). We assume that meetings with higher utitily value, given that the agent prefers meetings to be held early in the morning will be scheduled before meetings with lower utitily.</p>
+<h1 id="Constraint-Optimization-Single-Agent">Constraint Optimization Single Agent<a class="anchor-link" href="#Constraint-Optimization-Single-Agent">&#182;</a></h1><p>An agent(A) wishes to participate in one or more meetings(M). Each meeting has 3 possible time slots which can be held. Agent's job is to schedule these meetings in an arrangement such that its total utitily is maximized. The agent has preferences meaning it might prefer meetings to be held during early hours or later in the day or it could be neutral. Every meeting has a utitily(U). We assume that meetings with higher utitily value, given that the agent prefers meetings to be held early in the morning will be scheduled before meetings with lower utitily.</p>
 <p>Preference table for agent $A_{i}$:</p>
 <table>
 <thead><tr>
@@ -14278,7 +14278,7 @@ a.anchor-link {
 </tr>
 </tbody>
 </table>
-<p>Meetings and their utilities for agent $A_{i}$. A meeting $M_{i}$ will be scheduled before $M_{j}$, if $U_{i} &gt; U_{j}$. Symbol $&lt;$ in constrains column in table below indicates that a meeting $i$ is preferred to scheduled before meeting $j$</p>
+<p>Meetings and their utilities for agent $A_{i}$. A meeting $M_{i}$ will be scheduled before $M_{j}$, if $U_{i} &gt; U_{j}$. Symbol $&lt;$ in constrains column in table below indicates that a meeting $i$ is preferred to be scheduled before meeting $j$</p>
 <table>
 <thead><tr>
 <th style="text-align:center">Meeting</th>
@@ -14350,7 +14350,12 @@ a.anchor-link {
 </tr>
 </tbody>
 </table>
-<p>Main diagonal is set to -1 because no two meetings can be scheduled at the same time.</p>
+<p>Main diagonal is set to -1 because no two meetings can be scheduled at the same time. From relation matrix above we conclude that.</p>
+<ul>
+<li>if $M_{2}$ is scheduled in the morning then $M_{1}$ could be scheduled either in afternoon or evening. </li>
+<li>if $M_{2}$ is scheduled in the afternoon then it is better for agent's interests $M_{1}$ to be held in the morning. </li>
+<li>if $M_{2}$ is scheduled in the evening, $M_{1}$ should be scheduled in the morning.</li>
+</ul>
 
 </div>
 </div>
