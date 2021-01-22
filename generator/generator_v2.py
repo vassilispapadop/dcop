@@ -249,7 +249,7 @@ def create_hierarchy(N):
 	return index	
 
 def export_to_file(node_index,N,M,V):
-	f=open("../constraint_graphs/DCOP_Problem_"+str(N), "w")
+	f=open("DCOP_Problem_"+str(N), "w")
 	f.write(str(N)+";"+str(M)+";"+str(V)+"\n")
 	for node in node_index.values():
 		for m in node.meetings.keys():
@@ -262,18 +262,18 @@ def export_to_file(node_index,N,M,V):
 
 
 def main():
-	if(len(sys.argv)<2):
-		print("Provide input for Agent number (example: python generator.py 50)")
-		sys.exit()
-	val=sys.argv[1]	
+	# if(len(sys.argv)<2):
+	# 	print("Provide input for Agent number (example: python generator.py 50)")
+	# 	sys.exit()
+	# val=sys.argv[1]	
 
-	try:
-	   N = int(val)
-	except ValueError:
-	   print("Provide Number!")
-	   sys.exit()
+	# try:
+	#    N = int(val)
+	# except ValueError:
+	#    print("Provide Number!")
+	#    sys.exit()
 
-	# N = 10
+	N = 50
 
 	index=create_hierarchy(N)		
 	MM=meetings(index)

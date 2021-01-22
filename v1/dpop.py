@@ -7,7 +7,7 @@ import numpy as np
 import json
 from NodeAttributes import NodeAttributes
 import Utilities as u
-import Pseudotree as ptree
+import pseudotree as ptree
                                  
 def compute_utils(T, nodes):
     # compute utility from each node and pass it to parents
@@ -48,8 +48,8 @@ def main():
 
     # Open file 
     # inputFilename = 'constraint_graphs/dcop_constraint_graph'
-    inputFilename = 'constraint_graphs/dcop_simple'
-    # inputFilename = 'constraint_graphs/DCOP_Problem_40'
+    # inputFilename = 'constraint_graphs/dcop_simple'
+    inputFilename = 'constraint_graphs/DCOP_Problem_50'
     input = open(inputFilename, 'r') 
 
     # Read first line
@@ -89,8 +89,8 @@ def main():
     #print(list(nx.bfs_edges(T,3)))
     compute_utils(T, ptree.getLeafNodes(T))
     
-    # nx.draw(T, layout, edge_color=colors, with_labels=True)
-    # plt.show()
+    nx.draw(T, layout, edge_color=colors, with_labels=True)
+    plt.show()
 
         # Print nodes
     print('----------------ALL NODES----------------')

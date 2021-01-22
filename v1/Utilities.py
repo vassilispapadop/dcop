@@ -1,8 +1,13 @@
-TIME_SLOTS = 3
+TIME_SLOTS = 8
 SLOTS= {
 	0:"Morning",
 	1:"Afternoon",
-	2:"Evening"
+	2:"Evening",
+    3:"afdgadfg",
+    4:"",
+    5:"",
+    6:"",
+    7:""
 }
 
 
