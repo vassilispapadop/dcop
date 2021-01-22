@@ -13,7 +13,7 @@ def readVariables(input, nr_vars):
     for i in range(0, nr_vars):
 
         [agentId, meetingId, meetingUtil] = readLine(input)
-        var = Variable(agentId, meetingId, meetingUtil) 
+        var = Variable(i, agentId, meetingId, meetingUtil) 
         vars.append(var)
         # agent = {
         #             'id': agentId,  
