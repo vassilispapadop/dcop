@@ -11,4 +11,20 @@ class Variable:
     
     def __repr__(self):  
         return "Variable %s -> Agent Id:%d, Meeting Id:%d, Utility:%d\n" % (str(self.label), self.agentId, self.meetingId, self.utility) 
+
+
+class AgentClass:
+    def __init__(self, id):
+        self.id = id
+        self.meetings = []
+
+    def addMeeting(self, meetingId):
+        self.meetings.append(meetingId)
+
+    def findMeeting(self, id):
+        for m in self.meetings:
+            if m == id:
+                return True
+
+        return False
          

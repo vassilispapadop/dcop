@@ -6,6 +6,7 @@ import numpy as np
 import pydot
 import json
 from variable import Variable
+from variable import AgentClass
 
 def getVarFromMeetingId(varList, tupleKey):
     res = []
@@ -16,7 +17,7 @@ def getVarFromMeetingId(varList, tupleKey):
     return res
 
 def getVarFromAgentId(varList, agentId):
-    agents =[]
+    agents = []
     for v in varList:
         if v.agentId == agentId:
             agents.append(v)
@@ -48,3 +49,25 @@ def addEqualityConstraintsEdges(vars):
     equalConst = [list(tpl) for tpl in list(set([tuple(sorted(pair)) for pair in equalConst]))]
 
     return equalConst
+
+def getAllVarsWithSameMeeting(varList, meetingId, varId):
+    vars = []
+    for v in varList:
+        if v.meetingId == meetingId and v.varId != varId:
+            vars.append(v.varId)
+    return vars
+
+def intersection(lst1, lst2): 
+    return list(set(lst1) & set(lst2)) 
+
+def getAllAgentsWithSameMeeting(agentsList, meetings, agentId):
+    agents = []
+    for id, attr in agentsList.items():
+        if id == agentId :
+            continue
+        shared = intersection(attr.meetings, meetings)
+        if len(shared) >0 :
+            agents.append(id)
+
+    return agents
+
