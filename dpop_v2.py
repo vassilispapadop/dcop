@@ -6,10 +6,12 @@ from networkx.drawing.nx_pydot import graphviz_layout
 import matplotlib.pyplot as plt
 import pydot
 import pseudotree_v2 as ptree
+from collections import deque
 root_node = 0
 
 sentMsgs = []
-
+totalMsgs = []
+value_prop_order = []
 
 def get_parent(T, node):
     parent = None
@@ -37,7 +39,7 @@ def get_parent(T, node):
 
     return parent, pseudo_parents
 
-def compute_util(T, nodes):
+def send_util_msg(T, nodes):
     # compute utility from each node and pass it to parents
     # keep track of parents
     if len(nodes) == 0:
@@ -51,7 +53,13 @@ def compute_util(T, nodes):
         # if parent == None:
         #     return
         if parent != None:
-            print("computing util from: %d to %d" %(node,parent))
+            # for some reason sometimes send the same msg twice
+            if (node,parent) not in totalMsgs:
+                print("Util Message from: %d to %d" %(node,parent))
+                totalMsgs.append((node,parent))
+                # store parents order to use in value propagation
+                value_prop_order.append((parent,node))
+
             if parent not in parents:
                 parents.append(parent)
         elif node != root_node:
@@ -59,7 +67,15 @@ def compute_util(T, nodes):
                 parents.append(node)
 
     # print("checking util for:", parents)
-    compute_util(T,parents)
+    send_util_msg(T,parents)
+
+
+def send_value_msg():
+    # reverse because we use recursion in send_util_msg
+    value_prop_order.reverse()
+    for p in value_prop_order:
+        [parent, child] = p
+        print("Value Message from: %d to %d" %(parent,child))
 
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
@@ -67,7 +83,7 @@ def main():
     # Open file 
     inputFilename = 'constraint_graphs/dcop_constraint_graph'
     # inputFilename = 'constraint_graphs/dcop_simple'
-    # inputFilename = 'constraint_graphs/DCOP_Problem_50'
+    # inputFilename = 'constraint_graphs/DCOP_Problem_10'
     input = open(inputFilename, 'r') 
     
     # Read first line
@@ -171,9 +187,10 @@ def main():
     output = "root_"+str(root_node)+".png"
     plt.savefig(output, format="PNG")
 
-
+    # print(nx.shortest_path_length(TreeDfs,root_node))
     print("Leaves are:", leaves)
-    compute_util(TreeDfs, leaves)
-
+    send_util_msg(TreeDfs, leaves)
+    print("Total number of messages:%d" %(len(totalMsgs)))
+    send_value_msg()
 if __name__ == "__main__":
     main()
