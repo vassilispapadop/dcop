@@ -81,9 +81,9 @@ def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
     useAgents = True
     # Open file 
-    inputFilename = 'constraint_graphs/dcop_constraint_graph'
-    # inputFilename = 'constraint_graphs/dcop_simple'
-    # inputFilename = 'constraint_graphs/DCOP_Problem_10'
+    # inputFilename = 'constraint_graphs/dcop_constraint_graph'
+    inputFilename = 'constraint_graphs/dcop_simple'
+    # inputFilename = 'constraint_graphs/DCOP_Problem_30'
     input = open(inputFilename, 'r') 
     
     # Read first line
@@ -176,13 +176,12 @@ def main():
         if all_blue:
             leaves.append(v[0])       
 
-    layout = graphviz_layout(TreeDfs, prog="dot") 
-
     edges = TreeDfs.edges.data('color', default='black')
     colors = []
     for _,_,c in edges:
         colors.append(c)
 
+    layout = graphviz_layout(TreeDfs, prog="dot") 
     nx.draw(TreeDfs, layout, edge_color=colors, with_labels=True) #style='dashed', connectionstyle="arc3,rad=0.1"
     output = "root_"+str(root_node)+".png"
     plt.savefig(output, format="PNG")
