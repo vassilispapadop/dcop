@@ -36,10 +36,5 @@ def groupByAgents(vars):
             agents[v.agentId] = AgentClass(v.agentId)
 
         agents[v.agentId].addMeeting(v.meetingId)
-        # index = searchAgent(v.meetingId, agents)
-        # if index == -1:
-        #     continue
-
-        # agents[index].meetings.append(v.meetingId)
 
     return agents

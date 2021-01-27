@@ -9,6 +9,8 @@ import pseudotree_v2 as ptree
 from collections import deque
 root_node = 0
 
+agentsList = {}
+
 sentMsgs = []
 totalMsgs = []
 value_prop_order = []
@@ -56,6 +58,9 @@ def send_util_msg(T, nodes):
             # for some reason sometimes send the same msg twice
             if (node,parent) not in totalMsgs:
                 print("Util Message from: %d to %d" %(node,parent))
+                if agentsList[node].id != node:
+                    print("OOOOOPPPPS")
+                    
                 totalMsgs.append((node,parent))
                 # store parents order to use in value propagation
                 value_prop_order.append((parent,node))
@@ -82,8 +87,8 @@ def main():
     useAgents = True
     # Open file 
     # inputFilename = 'constraint_graphs/dcop_constraint_graph'
-    inputFilename = 'constraint_graphs/dcop_simple'
-    # inputFilename = 'constraint_graphs/DCOP_Problem_30'
+    # inputFilename = 'constraint_graphs/dcop_simple'
+    inputFilename = 'constraint_graphs/DCOP_Problem_700'
     input = open(inputFilename, 'r') 
     
     # Read first line
@@ -91,9 +96,8 @@ def main():
     print("Number of agents:%d \nNumber of meetings:%d \nNumber of variables:%d" %(nrAgents, nrMeetings, nrVars))
 
     # Read variables
-    [varList, agentsList] = uv2.readVariables(input, nrVars)
-    # print(varList)
-    # print(agentsList)
+    global agentsList
+    varList, agentsList = uv2.readVariables(input, nrVars)
 
     print('-----------Variables Graph--------------')   
     graphVariables = {}
