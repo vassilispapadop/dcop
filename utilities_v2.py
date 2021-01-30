@@ -21,12 +21,33 @@ def readVariables(input, nr_vars):
     agents = groupByAgents(vars)
     return vars, agents   
 
+
+def readPrerefence(input, agentsList):
+    # for a in agentsList:
+    #     for i in range(0,7):
+    #         [agentId, _, pref] = readLine(input)
+    #         print(agentId)
+    #         # if agentId == agentsList[a].id:
+    #         agentsList[a].addPrefSlot(pref)
+
+
+    [agentId, _, pref] = readLine(input)
+    while True:
+        try:
+            agentsList[agentId].addPrefSlot(pref)
+            [agentId, _, pref] = readLine(input)
+        except ValueError as v:
+            break
+
+    return agentsList
+
 def searchAgent(meetingId, agentsList):
     i = 0
     while i < len(agentsList):
         if agentsList[i].findMeeting(meetingId):
             return i
-
+        i += 1
+        
     return -1
 
 def groupByAgents(vars):

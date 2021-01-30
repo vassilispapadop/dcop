@@ -60,6 +60,8 @@ def send_util_msg(T, nodes):
                 print("Util Message from: %d to %d" %(node,parent))
                 if agentsList[node].id != node:
                     print("OOOOOPPPPS")
+                else:
+                    print(agentsList[node].meetings)
                     
                 totalMsgs.append((node,parent))
                 # store parents order to use in value propagation
@@ -86,9 +88,9 @@ def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
     useAgents = True
     # Open file 
-    # inputFilename = 'constraint_graphs/dcop_constraint_graph'
-    # inputFilename = 'constraint_graphs/dcop_simple'
-    inputFilename = 'constraint_graphs/DCOP_Problem_700'
+    inputFilename = 'constraint_graphs/dcop_constraint_graph'
+    # inputFilename = 'constraint_graphs/dcop_simple_test'
+    # inputFilename = 'constraint_graphs/DCOP_Problem_700'
     input = open(inputFilename, 'r') 
     
     # Read first line
@@ -98,6 +100,9 @@ def main():
     # Read variables
     global agentsList
     varList, agentsList = uv2.readVariables(input, nrVars)
+
+    # Read preference
+    agentsList = uv2.readPrerefence(input, agentsList)
 
     print('-----------Variables Graph--------------')   
     graphVariables = {}

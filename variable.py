@@ -17,6 +17,7 @@ class AgentClass:
     def __init__(self, id):
         self.id = id
         self.meetings = []
+        self.preference = []
 
     def addMeeting(self, meetingId):
         self.meetings.append(meetingId)
@@ -27,4 +28,7 @@ class AgentClass:
                 return True
 
         return False
+
+    def addPrefSlot(self, slot):
+        self.preference.append(slot)
          
