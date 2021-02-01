@@ -7,13 +7,20 @@ import matplotlib.pyplot as plt
 import pydot
 import pseudotree_v2 as ptree
 from collections import deque
+from sys import getsizeof
+import matplotlib.pyplot as plt
+
 root_node = 0
 
 agentsList = {}
 
 sentMsgs = []
-totalMsgs = []
+seenMsgs = []
 value_prop_order = []
+MESSAGES_SIZE = []
+
+msgCounter = 0
+msgCountPerIteration =[]
 
 def get_parent(T, node):
     parent = None
@@ -41,10 +48,11 @@ def get_parent(T, node):
 
     return parent, pseudo_parents
 
-def send_util_msg(T, nodes):
+def send_util_msg(T, nodes, msgCounter):
     # compute utility from each node and pass it to parents
     # keep track of parents
     if len(nodes) == 0:
+        print("root node: ", agentsList[root_node].createHypercube(-1))
         return    
 
     parents = []
@@ -52,18 +60,24 @@ def send_util_msg(T, nodes):
 
         sentMsgs.append(node)
         [parent, _] = get_parent(T,node)
-        # if parent == None:
-        #     return
+        
         if parent != None:
             # for some reason sometimes send the same msg twice
-            if (node,parent) not in totalMsgs:
+            if (node,parent) not in seenMsgs:
                 print("Util Message from: %d to %d" %(node,parent))
                 if agentsList[node].id != node:
                     print("OOOOOPPPPS")
                 else:
-                    print(agentsList[node].meetings)
+                    # print(agentsList[node].meetings)
+                    MSG = agentsList[node].createHypercube(parent)
+                    print("Message Contents:", MSG)
+                    agentsList[parent].addReceivedMsgs(MSG)
+                    MESSAGES_SIZE.append(MSG.__sizeof__())
+                    # MESSAGES_SIZE.append(len(MSG))
                     
-                totalMsgs.append((node,parent))
+                seenMsgs.append((node,parent))
+                msgCounter += 1
+                msgCountPerIteration.append(msgCounter)
                 # store parents order to use in value propagation
                 value_prop_order.append((parent,node))
 
@@ -74,7 +88,7 @@ def send_util_msg(T, nodes):
                 parents.append(node)
 
     # print("checking util for:", parents)
-    send_util_msg(T,parents)
+    send_util_msg(T,parents,msgCounter)
 
 
 def send_value_msg():
@@ -84,13 +98,49 @@ def send_value_msg():
         [parent, child] = p
         print("Value Message from: %d to %d" %(parent,child))
 
+
+def find_leave_nodes(TreeDfs):
+    leaves = []
+    for v in TreeDfs.nodes(data=True):
+        out_edges = list(TreeDfs.out_edges(v[0], data=True))
+        if len(out_edges) == 0:
+            leaves.append(v[0])
+            continue
+
+        # print (v, out_edges)
+        all_blue = True
+        for _,_,color in out_edges:
+            try:
+                if color['color'] != 'blue':
+                    all_blue = False
+                    break
+            except KeyError as key:
+                    all_blue = False
+                    break
+        if all_blue:
+            leaves.append(v[0])  
+
+    return leaves    
+
+
+def create_relations(TreeDfs, agentsList):
+    for node in TreeDfs.nodes(data=True):
+        out_edges = list(TreeDfs.out_edges(node[0], data=True))
+        for parent, child, edge_color in out_edges:
+            sharedMeetings = uv2.intersection(agentsList[parent].meetings , agentsList[child].meetings)
+            for meeting in sharedMeetings:
+                pMatrix = agentsList[parent].internalMatrix[meeting]
+                cMatrix = agentsList[child].internalMatrix[meeting]
+                agentsList[child].addRelation(parent, meeting, pMatrix + cMatrix)
+        
+
 def main():
     # 1st row: Number of agents;Number of meetings;Number of variables
     useAgents = True
     # Open file 
-    inputFilename = 'constraint_graphs/dcop_constraint_graph'
-    # inputFilename = 'constraint_graphs/dcop_simple_test'
-    # inputFilename = 'constraint_graphs/DCOP_Problem_700'
+    # inputFilename = 'constraint_graphs/dcop_constraint_graph'
+    # inputFilename = 'constraint_graphs/dcop_simple'
+    inputFilename = 'constraint_graphs/DCOP_Problem_700'
     input = open(inputFilename, 'r') 
     
     # Read first line
@@ -103,6 +153,9 @@ def main():
 
     # Read preference
     agentsList = uv2.readPrerefence(input, agentsList)
+
+    # Create internal/node matrix per meeting
+    agentsList = uv2.buildPrefMatrixInternal(agentsList)
 
     print('-----------Variables Graph--------------')   
     graphVariables = {}
@@ -162,43 +215,35 @@ def main():
     for e in back_edges:
         TreeDfs.add_edge(*e, color = 'blue')
 
-  
-    # leaves = [v for v, d in TreeDfs.out_degree() if d == 0]
-    # find leaves in order to start compute util process
-    leaves = []
-    for v in TreeDfs.nodes(data=True):
-        out_edges = list(TreeDfs.out_edges(v[0], data=True))
-        if len(out_edges) == 0:
-            leaves.append(v[0])
-            continue
 
-        # print (v, out_edges)
-        all_blue = True
-        for _,_,color in out_edges:
-            try:
-                if color['color'] != 'blue':
-                    all_blue = False
-                    break
-            except KeyError as key:
-                    all_blue = False
-                    break
-        if all_blue:
-            leaves.append(v[0])       
+    # create relations based on tree edges
+    create_relations(TreeDfs, agentsList)
+
+    # find leaves in order to start compute util process
+    leaves = find_leave_nodes(TreeDfs)     
 
     edges = TreeDfs.edges.data('color', default='black')
     colors = []
     for _,_,c in edges:
         colors.append(c)
 
-    layout = graphviz_layout(TreeDfs, prog="dot") 
-    nx.draw(TreeDfs, layout, edge_color=colors, with_labels=True) #style='dashed', connectionstyle="arc3,rad=0.1"
-    output = "root_"+str(root_node)+".png"
-    plt.savefig(output, format="PNG")
+    # layout = graphviz_layout(TreeDfs, prog="dot") 
+    # nx.draw(TreeDfs, layout, edge_color=colors, with_labels=True) #style='dashed', connectionstyle="arc3,rad=0.1"
+    # output = "root_"+str(root_node)+".png"
+    # plt.savefig(output, format="PNG")
 
     # print(nx.shortest_path_length(TreeDfs,root_node))
     print("Leaves are:", leaves)
-    send_util_msg(TreeDfs, leaves)
-    print("Total number of messages:%d" %(len(totalMsgs)))
+    send_util_msg(TreeDfs, leaves,msgCounter)
+    print("Total number of messages:%d" %(len(msgCountPerIteration)))
     send_value_msg()
+    print(max(MESSAGES_SIZE))
+    plt.plot(MESSAGES_SIZE)
+    plt.title("700 agents. Total msg size")
+    plt.xlabel('Iteration')
+    plt.ylabel('Msg size so far')
+    plt.show()
+
+
 if __name__ == "__main__":
     main()

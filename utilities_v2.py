@@ -1,6 +1,9 @@
 from variable import Variable
 from variable import AgentClass
 
+def intersection(lst1, lst2): 
+    return list(set(lst1) & set(lst2)) 
+
 def readLine(input):
     try:
         [a, b, c] = input.readline().strip().split(';')
@@ -23,13 +26,6 @@ def readVariables(input, nr_vars):
 
 
 def readPrerefence(input, agentsList):
-    # for a in agentsList:
-    #     for i in range(0,7):
-    #         [agentId, _, pref] = readLine(input)
-    #         print(agentId)
-    #         # if agentId == agentsList[a].id:
-    #         agentsList[a].addPrefSlot(pref)
-
 
     [agentId, _, pref] = readLine(input)
     while True:
@@ -41,14 +37,23 @@ def readPrerefence(input, agentsList):
 
     return agentsList
 
-def searchAgent(meetingId, agentsList):
+def buildPrefMatrixInternal(agentsList):
     i = 0
     while i < len(agentsList):
-        if agentsList[i].findMeeting(meetingId):
-            return i
+        agentsList[i].interalPrefMatrix()
         i += 1
+
+    return agentsList
+    
+
+# def searchAgent(meetingId, agentsList):
+#     i = 0
+#     while i < len(agentsList):
+#         if agentsList[i].findMeeting(meetingId):
+#             return i
+#         i += 1
         
-    return -1
+#     return -1
 
 def groupByAgents(vars):
     agents = {}
@@ -56,6 +61,6 @@ def groupByAgents(vars):
         if v.agentId not in agents:
             agents[v.agentId] = AgentClass(v.agentId)
 
-        agents[v.agentId].addMeeting(v.meetingId)
+        agents[v.agentId].addMeeting(v.meetingId, v.utility)
 
     return agents

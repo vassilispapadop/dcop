@@ -7,3 +7,9 @@ __pycache__/pseudotree_v2.cpython-39.pyc
 v1/__pycache__/NodeAttributes.cpython-39.pyc
 .gitignore
 v1/__pycache__/pseudotree.cpython-39.pyc
+__pycache__/util_calculation.cpython-39.pyc
+*.gz
+report/Multiagent Constraint Optimization.log
+report/Multiagent Constraint Optimization.aux
+dpop_util_prop.zip
+direct_sum.py
