@@ -9,7 +9,7 @@ import pseudotree_v2 as ptree
 from collections import deque
 from sys import getsizeof
 import matplotlib.pyplot as plt
-
+from pympler import asizeof
 root_node = 0
 
 agentsList = {}
@@ -19,8 +19,14 @@ seenMsgs = []
 value_prop_order = []
 MESSAGES_SIZE = []
 
+msgSizePerCycleCounter = 0
+msgSizePerCycle = []
+
 msgCounter = 0
 msgCountPerIteration =[]
+
+cycleCounter = 0
+cyclePerLevel = []
 
 def get_parent(T, node):
     parent = None
@@ -48,7 +54,7 @@ def get_parent(T, node):
 
     return parent, pseudo_parents
 
-def send_util_msg(T, nodes, msgCounter):
+def send_util_msg(T, nodes, msgCounter, msgSizePerCycleCounter, cycleCounter):
     # compute utility from each node and pass it to parents
     # keep track of parents
     if len(nodes) == 0:
@@ -68,13 +74,13 @@ def send_util_msg(T, nodes, msgCounter):
                 if agentsList[node].id != node:
                     print("OOOOOPPPPS")
                 else:
-                    # print(agentsList[node].meetings)
                     MSG = agentsList[node].createHypercube(parent)
-                    print("Message Contents:", MSG)
+                    # print("Message Contents:", MSG)
                     agentsList[parent].addReceivedMsgs(MSG)
-                    MESSAGES_SIZE.append(MSG.__sizeof__())
-                    # MESSAGES_SIZE.append(len(MSG))
-                    
+
+                    MESSAGES_SIZE.append(asizeof.asizeof(MSG))
+                    msgSizePerCycleCounter += asizeof.asizeof(MSG)
+
                 seenMsgs.append((node,parent))
                 msgCounter += 1
                 msgCountPerIteration.append(msgCounter)
@@ -82,13 +88,18 @@ def send_util_msg(T, nodes, msgCounter):
                 value_prop_order.append((parent,node))
 
             if parent not in parents:
+                # cycleCounter.append(1)
                 parents.append(parent)
         elif node != root_node:
             if node not in parents:
+                msgSizePerCycle.append(msgSizePerCycleCounter)
+                msgSizePerCycleCounter = 0
+                cycleCounter += 1
+                cyclePerLevel.append(cycleCounter)
                 parents.append(node)
 
     # print("checking util for:", parents)
-    send_util_msg(T,parents,msgCounter)
+    send_util_msg(T,parents, msgCounter, msgSizePerCycleCounter, cycleCounter)
 
 
 def send_value_msg():
@@ -234,15 +245,45 @@ def main():
 
     # print(nx.shortest_path_length(TreeDfs,root_node))
     print("Leaves are:", leaves)
-    send_util_msg(TreeDfs, leaves,msgCounter)
-    print("Total number of messages:%d" %(len(msgCountPerIteration)))
+    send_util_msg(TreeDfs, leaves, msgCounter, msgSizePerCycleCounter, cycleCounter)
     send_value_msg()
-    print(max(MESSAGES_SIZE))
-    plt.plot(MESSAGES_SIZE)
-    plt.title("700 agents. Total msg size")
+
+    #Constraints = Number of edges + Inequality constraints
+    EQConstraints = TreeDfs.number_of_edges()
+    #iterate through every agent and count number of inequality constraints
+    NEQConstraints = 0
+    for id, attr in agentsList.items():
+        NEQConstraints += len(attr.meetings) - 1
+
+    # Print table results, as in paper
+    print("Number of agents:%d \nNumber of meetings:%d \nNumber of variables:%d" %(nrAgents, nrMeetings, nrVars))
+    print("Total Constraints", EQConstraints+NEQConstraints)
+    print("\tEquality constraints", EQConstraints)
+    print("\tInequality constraints", NEQConstraints)
+    print("Total number of messages:%d" %(len(msgCountPerIteration) * 2))
+    print("Max message size:%d"% (max(MESSAGES_SIZE)))
+    print("Cycles:%d"% (len(cyclePerLevel) * 2))
+    # plt.cla()
+    # plt.plot(MESSAGES_SIZE, color='green', marker='o', linestyle='dashed', linewidth=1, markersize=5)
+    # plt.title("Message size evolution during util propagation")
+    # plt.xlabel('Message counter')
+    # plt.ylabel('Message size(Bytes)')
+    # plt.savefig("msg_size_util_prop.png", format="PNG")
+    
+    # # plt.cla()
+    # plt.plot(cyclePerLevel, msgSizePerCycle, color='green', marker='o', linestyle='dashed', linewidth=1, markersize=5)
+    # plt.title("Aggregated Message size per tree level, during util propagation")
+    # plt.xlabel('Tree level')
+    # plt.ylabel('Aggregated Message size(Bytes)')
+    # plt.savefig("msg_size_per_level_util_prop.png", format="PNG")
+
+    # # plt.cla()
+    plt.plot(msgCountPerIteration, color='green', marker='o', linestyle='dashed', linewidth=1, markersize=5)
+    plt.title("Number of Messages during util propagation")
     plt.xlabel('Iteration')
-    plt.ylabel('Msg size so far')
-    plt.show()
+    plt.ylabel('Number Messages')
+    plt.savefig("nr_msg_util_prop.png", format="PNG")
+
 
 
 if __name__ == "__main__":

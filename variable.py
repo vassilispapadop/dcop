@@ -42,12 +42,18 @@ class AgentClass:
     
     def addReceivedMsgs(self, msg):
         for key,value in msg.items():
-            [_,_,meetId] = key
-            # self.relations[key] = value
-            if meetId in self.meetings:
-                self.relations[key] = value
-            else:
-                self.receivedMsgs[key] = value
+            [child,_] = key
+            for key, value in self.relations.items():
+                [c,_,m] = key
+                if c == child:
+                  self.relations[(c,self.id,m)] = value
+                else:
+                  self.receivedMsgs[(c,self.id,m)] = value
+
+            # if meetId in self.meetings:
+            #     self.relations[key] = value
+            # else:
+            #     self.receivedMsgs[key] = value
 
 
     def addRelation(self, parentId, meetingId, r):
@@ -56,25 +62,27 @@ class AgentClass:
         print("relation->key:%s \n %s" %(key, r))
 
     def createHypercube(self,parent):
+        if self.id == 2:
+            print('ela')
+            
         hypercube = {}
         for m in self.meetings:
             relations_per_meeting = []
-            keys = []
+            # keys = []
             
             for key, value in self.relations.items():
                 [_,p,meetId] = key
-                if meetId == m and parent == p:
-                    keys.append(p)
+                if meetId == m: # and parent == p:
+                    # keys.append(p)
                     relations_per_meeting.append(value)
 
-            if len(keys) > 0:
-                hypercube[parent,keys[0],m]  = (self.hyperCube(relations_per_meeting))
-            # i = 0
-            # while i < len(relations_per_meeting):
-            #     hypercube[self.id,hkey,m]  = (self.hyperCube(relations_per_meeting))
-            # print(aa)
+            # if len(keys) > 0:
+            if len(relations_per_meeting) > 0:
+                hypercube[self.id, parent]  = (self.hyperCubeDry(relations_per_meeting))
+                
         
-        return self.merge_two_dicts(hypercube, self.receivedMsgs)
+        # return self.merge_two_dicts(hypercube, self.receivedMsgs)
+        return hypercube
 
 
     def projection(self, cube):
@@ -82,6 +90,15 @@ class AgentClass:
 
     def join(self, r1,r2):
         return r1[:,:, None] + r2[:, None, :]
+
+
+    def hyperCubeDry(self, R):
+        zeros = []
+        for r in R:
+            zeros.append(r)
+        
+        return np.asarray(zeros)
+        # return np.reshape(zeros, (Z, X, Y), "F")
 
     def hyperCube(self, R):
         if len(R) < 2:
