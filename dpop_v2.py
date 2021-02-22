@@ -151,7 +151,7 @@ def main():
     # Open file 
     # inputFilename = 'constraint_graphs/dcop_constraint_graph'
     # inputFilename = 'constraint_graphs/dcop_simple'
-    inputFilename = 'constraint_graphs/DCOP_Problem_700'
+    inputFilename = 'constraint_graphs/DCOP_Problem_300'
     input = open(inputFilename, 'r') 
     
     # Read first line
@@ -200,6 +200,12 @@ def main():
     for e in graph_edges:
         G.add_edge(*e, color = 'black')
 
+
+    layout = graphviz_layout(G, prog="dot") 
+    nx.draw(G, layout, with_labels=True, node_color='#efedf2', arrowsize=1)#, connectionstyle="arc3,rad=0.1"
+    output = "root_"+str(root_node)+".png"
+    plt.savefig(output, format="PNG")
+
     # Create dfs tree with speficied node
     TreeDfs = nx.dfs_tree(G, root_node)
 
@@ -224,7 +230,7 @@ def main():
     back_edges = [list(tpl) for tpl in list(set([tuple(sorted(pair)) for pair in back_edges]))]
     print(back_edges)
     for e in back_edges:
-        TreeDfs.add_edge(*e, color = 'blue')
+        TreeDfs.add_edge(*e, color = 'blue', style='dashed')
 
 
     # create relations based on tree edges
@@ -239,7 +245,7 @@ def main():
         colors.append(c)
 
     # layout = graphviz_layout(TreeDfs, prog="dot") 
-    # nx.draw(TreeDfs, layout, edge_color=colors, with_labels=True) #style='dashed', connectionstyle="arc3,rad=0.1"
+    # nx.draw(TreeDfs, layout, edge_color=colors, with_labels=True, node_color='#efedf2', arrowsize=1)#, connectionstyle="arc3,rad=0.1"
     # output = "root_"+str(root_node)+".png"
     # plt.savefig(output, format="PNG")
 
@@ -253,7 +259,12 @@ def main():
     #iterate through every agent and count number of inequality constraints
     NEQConstraints = 0
     for id, attr in agentsList.items():
-        NEQConstraints += len(attr.meetings) - 1
+        i = len(attr.meetings) - 1
+        count = 0
+        while i > 0:
+            count += i
+            i -= 1
+        NEQConstraints += count
 
     # Print table results, as in paper
     print("Number of agents:%d \nNumber of meetings:%d \nNumber of variables:%d" %(nrAgents, nrMeetings, nrVars))
@@ -278,11 +289,11 @@ def main():
     # plt.savefig("msg_size_per_level_util_prop.png", format="PNG")
 
     # # plt.cla()
-    plt.plot(msgCountPerIteration, color='green', marker='o', linestyle='dashed', linewidth=1, markersize=5)
-    plt.title("Number of Messages during util propagation")
-    plt.xlabel('Iteration')
-    plt.ylabel('Number Messages')
-    plt.savefig("nr_msg_util_prop.png", format="PNG")
+    # plt.plot(msgCountPerIteration, color='green', marker='o', linestyle='dashed', linewidth=1, markersize=5)
+    # plt.title("Number of Messages during util propagation")
+    # plt.xlabel('Iteration')
+    # plt.ylabel('Number Messages')
+    # plt.savefig("nr_msg_util_prop.png", format="PNG")
 
 
 
